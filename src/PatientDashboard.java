@@ -1,6 +1,8 @@
 import javax.swing.*;
+import java.util.List;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.LocalDate;
 
 public class PatientDashboard extends JFrame {
 
@@ -182,9 +184,11 @@ public class PatientDashboard extends JFrame {
         // BUTTON ACTIONS
         // =====================================================
 
-        homeButton.addActionListener(e ->
-                cardLayout.show(contentPanel, "HOME")
-        );
+        homeButton.addActionListener(e -> {
+
+            refreshHomePage();
+
+        });
 
         appointmentButton.addActionListener(e ->
                 cardLayout.show(contentPanel, "APPOINTMENTS")
@@ -477,6 +481,18 @@ public class PatientDashboard extends JFrame {
         );
 
         panel.add(viewAll);
+
+        viewAll.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+
+                cardLayout.show(
+                        contentPanel,
+                        "HISTORY"
+                );
+            }
+        });
 
 
         // =========================================================
@@ -1098,6 +1114,26 @@ public class PatientDashboard extends JFrame {
 
 
         return panel;
+    }
+
+    private void refreshHomePage() {
+
+        contentPanel.remove(
+                contentPanel.getComponent(0)
+        );
+
+        contentPanel.add(
+                createHomePage(),
+                "HOME"
+        );
+
+        contentPanel.revalidate();
+        contentPanel.repaint();
+
+        cardLayout.show(
+                contentPanel,
+                "HOME"
+        );
     }
 
     private JPanel createOverviewCard(
@@ -2357,65 +2393,996 @@ public class PatientDashboard extends JFrame {
         return panel;
     }
 
-    // =========================================================
-    // HISTORY PAGE
-    // =========================================================
-
     private JPanel createHistoryPage() {
 
-        JPanel panel = createBasicPage(
-                "Appointment History",
-                "View your pending, active and completed appointments."
-        );
+        JPanel panel = new JPanel(null);
+        panel.setBackground(new Color(245, 247, 250));
 
-        JLabel title = new JLabel(
-                "Appointment History"
-        );
+        // =========================
+        // TITLE
+        // =========================
+
+        JLabel title =
+                new JLabel("Appointment History");
 
         title.setFont(
-                new Font("Segoe UI", Font.BOLD, 28)
+                new Font("Calisto MT", Font.BOLD, 28)
         );
 
-        title.setForeground(BLUE);
-
-        title.setBounds(50, 140, 400, 40);
+        title.setBounds(
+                50,
+                35,
+                500,
+                40
+        );
 
         panel.add(title);
 
-        // Status buttons
 
-        JButton pending = new JButton("Pending");
-        pending.setBounds(50, 205, 130, 40);
+        JLabel subtitle =
+                new JLabel(
+                        "View and manage your hospital appointments."
+                );
 
-        JButton active = new JButton("Active");
-        active.setBounds(190, 205, 130, 40);
-
-        JButton completed = new JButton("Completed");
-        completed.setBounds(330, 205, 140, 40);
-
-        JButton cancelled = new JButton("Cancelled");
-        cancelled.setBounds(480, 205, 140, 40);
-
-        panel.add(pending);
-        panel.add(active);
-        panel.add(completed);
-        panel.add(cancelled);
-
-        JLabel empty = new JLabel(
-                "No appointment history available."
+        subtitle.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
         );
 
-        empty.setFont(
-                new Font("Segoe UI", Font.PLAIN, 16)
+        subtitle.setForeground(
+                new Color(100, 100, 100)
         );
 
-        empty.setForeground(TEXT_GRAY);
+        subtitle.setBounds(
+                50,
+                75,
+                500,
+                25
+        );
 
-        empty.setBounds(50, 280, 400, 30);
+        panel.add(subtitle);
 
-        panel.add(empty);
+
+        // =========================
+        // FILTER CARD
+        // =========================
+
+        JPanel filterCard =
+                new JPanel(null);
+
+        filterCard.setBackground(Color.WHITE);
+
+        filterCard.setBounds(
+                50,
+                120,
+                865,
+                75
+        );
+
+        filterCard.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(225, 228, 235)
+                )
+        );
+
+        panel.add(filterCard);
+
+
+        JLabel filterTitle =
+                new JLabel("Filter by Status");
+
+        filterTitle.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        filterTitle.setBounds(
+                20,
+                25,
+                120,
+                25
+        );
+
+        filterCard.add(filterTitle);
+
+
+        // =========================
+        // FILTER BUTTONS
+        // =========================
+
+        JButton allButton =
+                new JButton("All");
+
+        JButton pendingButton =
+                new JButton("Pending");
+
+        JButton activeButton =
+                new JButton("Active");
+
+        JButton completedButton =
+                new JButton("Completed");
+
+        JButton cancelledButton =
+                new JButton("Cancelled");
+
+
+        JButton[] filterButtons = {
+                allButton,
+                pendingButton,
+                activeButton,
+                completedButton,
+                cancelledButton
+        };
+
+
+        int buttonX = 155;
+
+        for (JButton button : filterButtons) {
+
+            button.setBounds(
+                    buttonX,
+                    18,
+                    105,
+                    38
+            );
+
+            button.setFont(
+                    new Font("Segoe UI", Font.BOLD, 13)
+            );
+
+            button.setFocusPainted(false);
+
+            button.setBorder(
+                    BorderFactory.createLineBorder(
+                            new Color(210, 215, 225)
+                    )
+            );
+
+            button.setBackground(Color.WHITE);
+
+            filterCard.add(button);
+
+            buttonX += 115;
+        }
+
+
+        // =========================
+        // APPOINTMENTS TITLE
+        // =========================
+
+        JLabel appointmentsTitle =
+                new JLabel("Your Appointments");
+
+        appointmentsTitle.setFont(
+                new Font("Segoe UI", Font.BOLD, 18)
+        );
+
+        appointmentsTitle.setBounds(
+                50,
+                220,
+                300,
+                30
+        );
+
+        panel.add(appointmentsTitle);
+
+
+        // =========================
+        // APPOINTMENTS CONTAINER
+        // =========================
+
+        JPanel appointmentsList =
+                new JPanel();
+
+        appointmentsList.setLayout(
+                new BoxLayout(
+                        appointmentsList,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        appointmentsList.setBackground(
+                Color.WHITE
+        );
+
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        appointmentsList
+                );
+
+        scrollPane.setBounds(
+                50,
+                265,
+                865,
+                350
+        );
+
+        scrollPane.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(225, 228, 235)
+                )
+        );
+
+        scrollPane.getVerticalScrollBar()
+                .setUnitIncrement(16);
+
+        panel.add(scrollPane);
+
+
+        // =========================
+        // FILTER LOGIC
+        // =========================
+
+        allButton.addActionListener(e -> {
+
+            loadHistoryAppointments(
+                    appointmentsList,
+                    "ALL"
+            );
+
+            setHistoryFilterButton(
+                    filterButtons,
+                    allButton
+            );
+        });
+
+
+        pendingButton.addActionListener(e -> {
+
+            loadHistoryAppointments(
+                    appointmentsList,
+                    "PENDING"
+            );
+
+            setHistoryFilterButton(
+                    filterButtons,
+                    pendingButton
+            );
+        });
+
+
+        activeButton.addActionListener(e -> {
+
+            loadHistoryAppointments(
+                    appointmentsList,
+                    "ACTIVE"
+            );
+
+            setHistoryFilterButton(
+                    filterButtons,
+                    activeButton
+            );
+        });
+
+
+        completedButton.addActionListener(e -> {
+
+            loadHistoryAppointments(
+                    appointmentsList,
+                    "COMPLETED"
+            );
+
+            setHistoryFilterButton(
+                    filterButtons,
+                    completedButton
+            );
+        });
+
+
+        cancelledButton.addActionListener(e -> {
+
+            loadHistoryAppointments(
+                    appointmentsList,
+                    "CANCELLED"
+            );
+
+            setHistoryFilterButton(
+                    filterButtons,
+                    cancelledButton
+            );
+        });
+
+
+        // =========================
+        // DEFAULT FILTER
+        // =========================
+
+        setHistoryFilterButton(
+                filterButtons,
+                allButton
+        );
+
+        loadHistoryAppointments(
+                appointmentsList,
+                "ALL"
+        );
+
 
         return panel;
+    }
+
+    private void loadHistoryAppointments(
+            JPanel appointmentsList,
+            String filter
+    ) {
+
+        appointmentsList.removeAll();
+
+        Patient patient =
+                DataStore.currentPatient;
+
+        if (patient == null) {
+            return;
+        }
+
+
+        List<Appointment> appointments =
+                AppointmentDAO.getAppointments(
+                        patient.getPatientId(),
+                        filter
+                );
+
+
+        // =========================
+        // EMPTY STATE
+        // =========================
+
+        if (appointments.isEmpty()) {
+
+            JPanel emptyPanel =
+                    new JPanel();
+
+            emptyPanel.setLayout(
+                    new BoxLayout(
+                            emptyPanel,
+                            BoxLayout.Y_AXIS
+                    )
+            );
+
+            emptyPanel.setBackground(
+                    Color.WHITE
+            );
+
+            emptyPanel.setBorder(
+                    new EmptyBorder(
+                            100,
+                            20,
+                            20,
+                            20
+                    )
+            );
+
+
+            JLabel emptyTitle =
+                    new JLabel(
+                            "No appointment history available"
+                    );
+
+            emptyTitle.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.BOLD,
+                            17
+                    )
+            );
+
+            emptyTitle.setAlignmentX(
+                    Component.CENTER_ALIGNMENT
+            );
+
+
+            JLabel emptySubtitle =
+                    new JLabel(
+                            "Your appointments will appear here."
+                    );
+
+            emptySubtitle.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.PLAIN,
+                            13
+                    )
+            );
+
+            emptySubtitle.setForeground(
+                    new Color(120, 120, 120)
+            );
+
+            emptySubtitle.setAlignmentX(
+                    Component.CENTER_ALIGNMENT
+            );
+
+
+            emptyPanel.add(emptyTitle);
+
+            emptyPanel.add(
+                    Box.createVerticalStrut(8)
+            );
+
+            emptyPanel.add(emptySubtitle);
+
+
+            appointmentsList.add(emptyPanel);
+
+        } else {
+
+            // =========================
+            // APPOINTMENT CARDS
+            // =========================
+
+            for (Appointment appointment :
+                    appointments) {
+
+                JPanel card =
+                        createHistoryAppointmentCard(
+                                appointment,
+                                appointmentsList,
+                                filter
+                        );
+
+                appointmentsList.add(card);
+
+                appointmentsList.add(
+                        Box.createVerticalStrut(12)
+                );
+            }
+        }
+
+
+        appointmentsList.revalidate();
+
+        appointmentsList.repaint();
+    }
+
+    private JPanel createHistoryAppointmentCard(
+            Appointment appointment,
+            JPanel appointmentsList,
+            String filter
+    ) {
+
+        JPanel card =
+                new JPanel(null);
+
+        card.setBackground(
+                new Color(250, 251, 253)
+        );
+
+        card.setPreferredSize(
+                new Dimension(820, 155)
+        );
+
+        card.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        155
+                )
+        );
+
+        card.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(225, 228, 235)
+                )
+        );
+
+
+        // =========================
+        // DATE
+        // =========================
+
+        JPanel datePanel =
+                new JPanel(null);
+
+        datePanel.setBackground(
+                new Color(240, 243, 248)
+        );
+
+        datePanel.setBounds(
+                15,
+                15,
+                90,
+                120
+        );
+
+        card.add(datePanel);
+
+
+        LocalDate date =
+                appointment.getAppointmentDate();
+
+
+        JLabel day =
+                new JLabel(
+                        String.valueOf(
+                                date.getDayOfMonth()
+                        ),
+                        SwingConstants.CENTER
+                );
+
+        day.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        30
+                )
+        );
+
+        day.setBounds(
+                0,
+                15,
+                90,
+                35
+        );
+
+        datePanel.add(day);
+
+
+        JLabel month =
+                new JLabel(
+                        date.getMonth()
+                                .toString()
+                                .substring(0, 3),
+                        SwingConstants.CENTER
+                );
+
+        month.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        month.setBounds(
+                0,
+                52,
+                90,
+                20
+        );
+
+        datePanel.add(month);
+
+
+        JLabel year =
+                new JLabel(
+                        String.valueOf(
+                                date.getYear()
+                        ),
+                        SwingConstants.CENTER
+                );
+
+        year.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        year.setBounds(
+                0,
+                72,
+                90,
+                20
+        );
+
+        datePanel.add(year);
+
+
+        JLabel weekday =
+                new JLabel(
+                        date.getDayOfWeek()
+                                .toString()
+                                .substring(0, 3),
+                        SwingConstants.CENTER
+                );
+
+        weekday.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        11
+                )
+        );
+
+        weekday.setForeground(
+                new Color(100, 100, 100)
+        );
+
+        weekday.setBounds(
+                0,
+                92,
+                90,
+                20
+        );
+
+        datePanel.add(weekday);
+
+
+        // =========================
+        // DOCTOR
+        // =========================
+
+        String doctorName =
+                appointment.getDoctorName();
+
+
+        if (
+                doctorName == null
+                        ||
+                        doctorName.trim().isEmpty()
+        ) {
+
+            doctorName =
+                    "Doctor assignment pending";
+        }
+
+
+        JLabel doctor =
+                new JLabel(
+                        doctorName
+                );
+
+        doctor.setFont(
+                new Font(
+                        "Calisto MT",
+                        Font.BOLD,
+                        19
+                )
+        );
+
+        doctor.setBounds(
+                125,
+                15,
+                300,
+                30
+        );
+
+        card.add(doctor);
+
+
+        // =========================
+        // STATUS
+        // =========================
+
+        String displayStatus =
+                appointment.getStatus();
+
+
+        if (
+                "APPROVED".equals(
+                        appointment.getStatus()
+                )
+        ) {
+
+            displayStatus = "ACTIVE";
+        }
+
+
+        JLabel status =
+                new JLabel(
+                        "STATUS : "
+                                + displayStatus
+                );
+
+        status.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        status.setBounds(
+                430,
+                18,
+                160,
+                25
+        );
+
+        card.add(status);
+
+
+        // =========================
+        // DEPARTMENT
+        // =========================
+
+        JLabel department =
+                new JLabel(
+                        "Department: "
+                                + appointment.getDepartment()
+                );
+
+        department.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        department.setBounds(
+                125,
+                52,
+                300,
+                25
+        );
+
+        card.add(department);
+
+
+        // =========================
+        // TIME
+        // =========================
+
+        String time =
+                appointment.getPreferredTime();
+
+
+        if (
+                appointment.getConfirmedTime()
+                        != null
+                        &&
+                        !appointment.getConfirmedTime()
+                                .trim()
+                                .isEmpty()
+        ) {
+
+            time =
+                    appointment.getConfirmedTime();
+        }
+
+
+        JLabel timeLabel =
+                new JLabel(
+                        "Time: " + time
+                );
+
+        timeLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        timeLabel.setBounds(
+                125,
+                82,
+                220,
+                25
+        );
+
+        card.add(timeLabel);
+
+
+        // =========================
+        // TYPE
+        // =========================
+
+        JLabel type =
+                new JLabel(
+                        "Type: "
+                                + appointment.getAppointmentType()
+                );
+
+        type.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        type.setBounds(
+                350,
+                82,
+                180,
+                25
+        );
+
+        card.add(type);
+
+
+        // =========================
+        // PRIORITY
+        // =========================
+
+        JLabel priority =
+                new JLabel(
+                        "Priority: "
+                                + appointment.getPriority()
+                );
+
+        priority.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        priority.setBounds(
+                530,
+                82,
+                150,
+                25
+        );
+
+        card.add(priority);
+
+
+        // =========================
+        // ROOM
+        // =========================
+
+        if (
+                appointment.getRoomNumber()
+                        != null
+                        &&
+                        !appointment.getRoomNumber()
+                                .trim()
+                                .isEmpty()
+        ) {
+
+            JLabel room =
+                    new JLabel(
+                            "Room: "
+                                    + appointment.getRoomNumber()
+                    );
+
+            room.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.PLAIN,
+                            13
+                    )
+            );
+
+            room.setBounds(
+                    530,
+                    52,
+                    150,
+                    25
+            );
+
+            card.add(room);
+        }
+
+
+        // =========================
+        // REASON
+        // =========================
+
+        JLabel reason =
+                new JLabel(
+                        "Reason: "
+                                + appointment.getReason()
+                );
+
+        reason.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        card.add(reason);
+
+
+        // =========================
+        // CANCEL BUTTON
+        // =========================
+
+        if (
+                "PENDING".equals(
+                        appointment.getStatus()
+                )
+        ) {
+
+            JButton cancelButton =
+                    new JButton(
+                            "CANCEL APPOINTMENT"
+                    );
+
+            cancelButton.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.BOLD,
+                            11
+                    )
+            );
+
+            cancelButton.setFocusPainted(false);
+
+            cancelButton.setBounds(
+                    575,
+                    110,
+                    190,
+                    30
+            );
+
+            card.add(cancelButton);
+
+
+            cancelButton.addActionListener(e -> {
+
+                int choice =
+                        JOptionPane.showConfirmDialog(
+                                this,
+                                "Are you sure you want to cancel this appointment?",
+                                "Cancel Appointment",
+                                JOptionPane.YES_NO_OPTION
+                        );
+
+
+                if (
+                        choice
+                                == JOptionPane.YES_OPTION
+                ) {
+
+                    boolean deleted =
+                            AppointmentDAO
+                                    .cancelPendingAppointment(
+                                            appointment.getAppointmentId(),
+                                            DataStore.currentPatient
+                                                    .getPatientId()
+                                    );
+
+
+                    if (deleted) {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Appointment cancelled successfully."
+                        );
+
+
+                        loadHistoryAppointments(
+                                appointmentsList,
+                                filter
+                        );
+
+                    } else {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Unable to cancel appointment.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                }
+            });
+        }
+
+
+        return card;
+    }
+
+    private void setHistoryFilterButton(
+            JButton[] buttons,
+            JButton selectedButton
+    ) {
+
+        for (JButton button : buttons) {
+
+            button.setBackground(
+                    Color.WHITE
+            );
+
+            button.setForeground(
+                    new Color(50, 50, 50)
+            );
+        }
+
+
+        selectedButton.setBackground(
+                new Color(45, 115, 210)
+        );
+
+        selectedButton.setForeground(
+                Color.WHITE
+        );
     }
 
     // =========================================================
