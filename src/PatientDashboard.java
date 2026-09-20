@@ -1012,7 +1012,7 @@ public class PatientDashboard extends JFrame {
 
         bookingCard.setBorder(
                 BorderFactory.createLineBorder(
-                        new Color(225, 230, 235)
+                        new Color(215, 225, 240)
                 )
         );
 
@@ -1049,6 +1049,8 @@ public class PatientDashboard extends JFrame {
         departmentLabel.setFont(
                 new Font("Segoe UI", Font.BOLD, 14)
         );
+
+        departmentLabel.setForeground(TEXT_DARK);
 
         departmentLabel.setBounds(
                 20, 70, 200, 25
@@ -1095,6 +1097,8 @@ public class PatientDashboard extends JFrame {
         visitLabel.setFont(
                 new Font("Segoe UI", Font.BOLD, 14)
         );
+
+        departmentLabel.setForeground(TEXT_DARK);
 
         visitLabel.setBounds(
                 450, 70, 200, 25
@@ -1161,6 +1165,8 @@ public class PatientDashboard extends JFrame {
         dateLabel.setFont(
                 new Font("Segoe UI", Font.BOLD, 14)
         );
+
+        dateLabel.setForeground(TEXT_DARK);
 
         dateLabel.setBounds(
                 20, 155, 200, 25
@@ -1271,6 +1277,8 @@ public class PatientDashboard extends JFrame {
                 new Font("Segoe UI", Font.BOLD, 14)
         );
 
+        timeLabel.setForeground(TEXT_DARK);
+
         timeLabel.setBounds(
                 450, 155, 200, 25
         );
@@ -1317,6 +1325,7 @@ public class PatientDashboard extends JFrame {
         reasonLabel.setFont(
                 new Font("Segoe UI", Font.BOLD, 14)
         );
+        reasonLabel.setForeground(TEXT_DARK);
 
         reasonLabel.setBounds(
                 20, 240, 250, 25
@@ -1340,7 +1349,7 @@ public class PatientDashboard extends JFrame {
 
         reasonArea.setBorder(
                 BorderFactory.createLineBorder(
-                        new Color(210, 215, 220)
+                        new Color(200, 210, 225)
                 )
         );
 
@@ -1370,6 +1379,8 @@ public class PatientDashboard extends JFrame {
         priorityLabel.setFont(
                 new Font("Segoe UI", Font.BOLD, 14)
         );
+
+        priorityLabel.setForeground(TEXT_DARK);
 
         priorityLabel.setBounds(
                 20, 355, 100, 25
@@ -1475,11 +1486,93 @@ public class PatientDashboard extends JFrame {
         bookingCard.add(bookButton);
 
 
-        // =========================================================
-        // TEMPORARY VALIDATION
-        // =========================================================
+// =========================================================
+// APPOINTMENT BOOKING ACTION
+// =========================================================
 
         bookButton.addActionListener(e -> {
+
+            // =====================================================
+            // CHECK LOGGED-IN PATIENT
+            // =====================================================
+
+
+            if (patient == null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No patient is currently logged in.",
+                        "Session Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // CHECK EXISTING APPOINTMENT
+            // =====================================================
+
+            boolean alreadyHasAppointment =
+                    AppointmentDAO.hasActiveAppointment(
+                            patient.getPatientId()
+                    );
+
+            if (alreadyHasAppointment) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "You already have a pending or active appointment.\n\n"
+                                + "Please wait for the current appointment to be completed "
+                                + "or cancel the pending appointment before booking another.",
+                        "Appointment Already Exists",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // GET DEPARTMENT
+            // =====================================================
+
+            String department =
+                    (String) departmentBox.getSelectedItem();
+
+            if (department.equals("Select Department")) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select a department.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // GET APPOINTMENT TYPE
+            // =====================================================
+
+            String appointmentType;
+
+            if (firstVisit.isSelected()) {
+
+                appointmentType = "First Visit";
+
+            } else {
+
+                appointmentType = "Follow-up";
+            }
+
+
+            // =====================================================
+            // GET DATE
+            // =====================================================
 
             int selectedDay =
                     (Integer) dayBox.getSelectedItem();
@@ -1492,7 +1585,6 @@ public class PatientDashboard extends JFrame {
 
 
             java.time.LocalDate selectedDate;
-
 
             try {
 
@@ -1516,7 +1608,11 @@ public class PatientDashboard extends JFrame {
             }
 
 
-// Cannot book in the past
+            // =====================================================
+            // DATE RANGE VALIDATION
+            // =====================================================
+
+            // Cannot book in the past
             if (selectedDate.isBefore(today)) {
 
                 JOptionPane.showMessageDialog(
@@ -1530,7 +1626,7 @@ public class PatientDashboard extends JFrame {
             }
 
 
-// Cannot book more than one month ahead
+            // Cannot book more than one month ahead
             if (selectedDate.isAfter(maxDate)) {
 
                 JOptionPane.showMessageDialog(
@@ -1543,29 +1639,15 @@ public class PatientDashboard extends JFrame {
                 return;
             }
 
-            String department =
-                    (String) departmentBox.getSelectedItem();
 
-            String time =
+            // =====================================================
+            // GET TIME
+            // =====================================================
+
+            String preferredTime =
                     (String) timeBox.getSelectedItem();
 
-
-            if (department.equals(
-                    "Select Department")) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please select a department.",
-                        "Missing Information",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-
-            if (time.equals(
-                    "Select Time")) {
+            if (preferredTime.equals("Select Time")) {
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -1578,9 +1660,14 @@ public class PatientDashboard extends JFrame {
             }
 
 
-            if (reasonArea.getText()
-                    .trim()
-                    .isEmpty()) {
+            // =====================================================
+            // GET REASON
+            // =====================================================
+
+            String reason =
+                    reasonArea.getText().trim();
+
+            if (reason.isEmpty()) {
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -1593,11 +1680,9 @@ public class PatientDashboard extends JFrame {
             }
 
 
-            String visitType =
-                    firstVisit.isSelected()
-                            ? "First Visit"
-                            : "Follow-up";
-
+            // =====================================================
+            // GET PRIORITY
+            // =====================================================
 
             String priority;
 
@@ -1615,16 +1700,84 @@ public class PatientDashboard extends JFrame {
             }
 
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Appointment form is valid.\n\n"
-                            + "Department: " + department + "\n"
-                            + "Type: " + visitType + "\n"
-                            + "Time: " + time + "\n"
-                            + "Priority: " + priority,
-                    "Appointment",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            // =====================================================
+            // CREATE APPOINTMENT OBJECT
+            // =====================================================
+
+            Appointment appointment =
+                    new Appointment(
+                            patient.getPatientId(),
+                            patient.getFullName(),
+                            department,
+                            appointmentType,
+                            selectedDate,
+                            preferredTime,
+                            reason,
+                            priority
+                    );
+
+
+            // =====================================================
+            // SAVE TO DATABASE
+            // =====================================================
+
+            boolean created =
+                    AppointmentDAO.createAppointment(
+                            appointment
+                    );
+
+
+            // =====================================================
+            // SUCCESS
+            // =====================================================
+
+            if (created) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Your appointment request has been submitted successfully.\n\n"
+                                + "Status: PENDING\n"
+                                + "The hospital manager will review your request.",
+                        "Appointment Requested",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+
+                // =================================================
+                // CLEAR FORM
+                // =================================================
+
+                departmentBox.setSelectedIndex(0);
+
+                firstVisit.setSelected(true);
+
+                monthBox.setSelectedIndex(
+                        today.getMonthValue() - 1
+                );
+
+                dayBox.setSelectedItem(
+                        today.getDayOfMonth()
+                );
+
+                yearBox.setSelectedItem(2026);
+
+                timeBox.setSelectedIndex(0);
+
+                reasonArea.setText("");
+
+                normal.setSelected(true);
+
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Unable to create the appointment.\n"
+                                + "Please try again.",
+                        "Database Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         });
 
 
