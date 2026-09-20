@@ -493,7 +493,7 @@ public class PatientDashboard extends JFrame {
                 45,
                 375,
                 870,
-                95
+                140
         );
 
         appointmentCard.setBorder(
@@ -505,34 +505,487 @@ public class PatientDashboard extends JFrame {
         panel.add(appointmentCard);
 
 
-        /*
-         * TEMPORARY STATE
-         *
-         * Currently we don't have the Appointment class.
-         * Therefore we display an empty state.
-         *
-         * Later this section will be replaced with
-         * real appointment information.
-         */
+// =========================================================
+// REAL APPOINTMENT INFORMATION
+// =========================================================
+
+        Appointment currentAppointment = null;
+
+        if (patient != null) {
+
+            currentAppointment =
+                    AppointmentDAO.getCurrentAppointment(
+                            patient.getPatientId()
+                    );
+        }
 
 
-        JLabel appointmentStatus =
-                new JLabel("No upcoming appointments");
+        if (currentAppointment == null) {
 
-        appointmentStatus.setFont(
-                new Font("Segoe UI", Font.PLAIN, 16)
-        );
+            JLabel appointmentStatus =
+                    new JLabel("No upcoming appointments");
 
-        appointmentStatus.setForeground(TEXT_GRAY);
+            appointmentStatus.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 16)
+            );
 
-        appointmentStatus.setBounds(
-                25,
-                30,
-                300,
-                30
-        );
+            appointmentStatus.setForeground(TEXT_GRAY);
 
-        appointmentCard.add(appointmentStatus);
+            appointmentStatus.setBounds(
+                    25,
+                    55,
+                    500,
+                    30
+            );
+
+            appointmentCard.add(appointmentStatus);
+
+        } else {
+
+            // =====================================================
+            // DATE PANEL
+            // =====================================================
+
+            JPanel datePanel = new JPanel();
+
+            datePanel.setLayout(null);
+
+            datePanel.setBackground(
+                    new Color(239, 246, 255)
+            );
+
+            datePanel.setBounds(
+                    15,
+                    15,
+                    115,
+                    110
+            );
+
+            datePanel.setBorder(
+                    BorderFactory.createLineBorder(
+                            new Color(225, 235, 250)
+                    )
+            );
+
+            appointmentCard.add(datePanel);
+
+
+            java.time.LocalDate appointmentDate =
+                    currentAppointment.getAppointmentDate();
+
+
+            // DAY
+
+            JLabel dayLabel =
+                    new JLabel(
+                            String.valueOf(
+                                    appointmentDate.getDayOfMonth()
+                            ),
+                            SwingConstants.CENTER
+                    );
+
+            dayLabel.setFont(
+                    new Font("Segoe UI", Font.BOLD, 30)
+            );
+
+            dayLabel.setForeground(TEXT_DARK);
+
+            dayLabel.setBounds(
+                    5,
+                    8,
+                    105,
+                    35
+            );
+
+            datePanel.add(dayLabel);
+
+
+            // MONTH
+
+            String monthName =
+                    appointmentDate.getMonth()
+                            .toString()
+                            .substring(0, 1)
+                            +
+                            appointmentDate.getMonth()
+                                    .toString()
+                                    .substring(1)
+                                    .toLowerCase();
+
+
+            JLabel monthLabel =
+                    new JLabel(
+                            monthName,
+                            SwingConstants.CENTER
+                    );
+
+            monthLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 14)
+            );
+
+            monthLabel.setForeground(TEXT_DARK);
+
+            monthLabel.setBounds(
+                    5,
+                    45,
+                    105,
+                    22
+            );
+
+            datePanel.add(monthLabel);
+
+
+            // YEAR
+
+            JLabel yearLabel =
+                    new JLabel(
+                            String.valueOf(
+                                    appointmentDate.getYear()
+                            ),
+                            SwingConstants.CENTER
+                    );
+
+            yearLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 13)
+            );
+
+            yearLabel.setForeground(TEXT_GRAY);
+
+            yearLabel.setBounds(
+                    5,
+                    67,
+                    105,
+                    20
+            );
+
+            datePanel.add(yearLabel);
+
+
+            // DAY OF WEEK
+
+            String dayOfWeek =
+                    appointmentDate.getDayOfWeek()
+                            .toString()
+                            .substring(0, 1)
+                            +
+                            appointmentDate.getDayOfWeek()
+                                    .toString()
+                                    .substring(1)
+                                    .toLowerCase();
+
+
+            JLabel weekdayLabel =
+                    new JLabel(
+                            dayOfWeek,
+                            SwingConstants.CENTER
+                    );
+
+            weekdayLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 12)
+            );
+
+            weekdayLabel.setForeground(TEXT_GRAY);
+
+            weekdayLabel.setBounds(
+                    5,
+                    88,
+                    105,
+                    18
+            );
+
+            datePanel.add(weekdayLabel);
+
+
+            // =====================================================
+            // VERTICAL SEPARATOR
+            // =====================================================
+
+            JSeparator dateSeparator =
+                    new JSeparator(
+                            SwingConstants.VERTICAL
+                    );
+
+            dateSeparator.setForeground(
+                    new Color(215, 225, 240)
+            );
+
+            dateSeparator.setBounds(
+                    145,
+                    20,
+                    1,
+                    100
+            );
+
+            appointmentCard.add(dateSeparator);
+
+
+            // =====================================================
+            // DOCTOR NAME
+            // =====================================================
+
+            String doctorName =
+                    currentAppointment.getDoctorName();
+
+
+            if (
+                    doctorName == null
+                            ||
+                            doctorName.trim().isEmpty()
+            ) {
+
+                doctorName =
+                        "Doctor assignment pending";
+            }
+
+
+            JLabel doctorLabel =
+                    new JLabel(
+                            doctorName
+                    );
+
+            doctorLabel.setFont(
+                    new Font("Calisto MT", Font.BOLD, 21)
+            );
+
+            doctorLabel.setForeground(TEXT_DARK);
+
+            doctorLabel.setBounds(
+                    170,
+                    15,
+                    470,
+                    28
+            );
+
+            appointmentCard.add(doctorLabel);
+
+
+            // =====================================================
+            // STATUS
+            // =====================================================
+
+            String displayStatus;
+
+            if (
+                    currentAppointment.getStatus()
+                            .equals("APPROVED")
+            ) {
+
+                displayStatus = "ACTIVE";
+
+            } else {
+
+                displayStatus =
+                        currentAppointment.getStatus();
+            }
+
+
+            JLabel statusLabel =
+                    new JLabel(
+                            "STATUS : " + displayStatus
+                    );
+
+            statusLabel.setFont(
+                    new Font("Segoe UI", Font.BOLD, 14)
+            );
+
+            statusLabel.setForeground(BLUE);
+
+            statusLabel.setBounds(
+                    665,
+                    12,
+                    180,
+                    25
+            );
+
+            appointmentCard.add(statusLabel);
+
+
+            // =====================================================
+            // DEPARTMENT
+            // =====================================================
+
+            JLabel departmentLabel =
+                    new JLabel(
+                            "Department : "
+                                    + currentAppointment
+                                    .getDepartment()
+                    );
+
+            departmentLabel.setFont(
+                    new Font("Segoe UI", Font.BOLD, 14)
+            );
+
+            departmentLabel.setForeground(TEXT_GRAY);
+
+            departmentLabel.setBounds(
+                    170,
+                    42,
+                    300,
+                    22
+            );
+
+            appointmentCard.add(departmentLabel);
+
+
+            // =====================================================
+            // TIME
+            // =====================================================
+
+            String displayTime;
+
+            if (
+                    currentAppointment.getStatus()
+                            .equals("APPROVED")
+                            &&
+                            currentAppointment.getConfirmedTime() != null
+                            &&
+                            !currentAppointment.getConfirmedTime().isEmpty()
+            ) {
+
+                displayTime =
+                        currentAppointment.getConfirmedTime();
+
+            } else {
+
+                displayTime =
+                        currentAppointment.getPreferredTime();
+            }
+
+
+            JLabel timeLabel =
+                    new JLabel(
+                            "Time : " + displayTime
+                    );
+
+            timeLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 14)
+            );
+
+            timeLabel.setForeground(TEXT_GRAY);
+
+            timeLabel.setBounds(
+                    170,
+                    75,
+                    300,
+                    22
+            );
+
+            appointmentCard.add(timeLabel);
+
+
+            // =====================================================
+            // TYPE
+            // =====================================================
+
+            JLabel typeLabel =
+                    new JLabel(
+                            "Type : "
+                                    + currentAppointment
+                                    .getAppointmentType()
+                    );
+
+            typeLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 14)
+            );
+
+            typeLabel.setForeground(TEXT_GRAY);
+
+            typeLabel.setBounds(
+                    500,
+                    75,
+                    180,
+                    22
+            );
+
+            appointmentCard.add(typeLabel);
+
+
+            // =====================================================
+            // PRIORITY
+            // =====================================================
+
+            JLabel priorityLabel =
+                    new JLabel(
+                            "Priority : "
+                                    + currentAppointment
+                                    .getPriority()
+                    );
+
+            priorityLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 14)
+            );
+
+            priorityLabel.setForeground(TEXT_GRAY);
+
+            priorityLabel.setBounds(
+                    170,
+                    100,
+                    180,
+                    22
+            );
+
+            appointmentCard.add(priorityLabel);
+
+
+            // =====================================================
+            // REASON
+            // =====================================================
+
+            JLabel reasonLabel =
+                    new JLabel(
+                            "Reason : "
+                                    + currentAppointment.getReason()
+                    );
+
+            reasonLabel.setFont(
+                    new Font("Segoe UI", Font.PLAIN, 14)
+            );
+
+            reasonLabel.setForeground(TEXT_GRAY);
+
+            reasonLabel.setBounds(
+                    500,
+                    93,
+                    490,
+                    35
+            );
+
+            appointmentCard.add(reasonLabel);
+
+
+            // =====================================================
+            // DOCTOR / ROOM
+            // =====================================================
+
+            if (
+                    currentAppointment.getRoomNumber() != null
+                            &&
+                            !currentAppointment.getRoomNumber().isEmpty()
+            ) {
+
+                JLabel roomLabel =
+                        new JLabel(
+                                "Room : "
+                                        + currentAppointment
+                                        .getRoomNumber()
+                        );
+
+                roomLabel.setFont(
+                        new Font("Segoe UI", Font.PLAIN, 13)
+                );
+
+                roomLabel.setForeground(TEXT_GRAY);
+
+                roomLabel.setBounds(
+                        650,
+                        90,
+                        180,
+                        22
+                );
+
+                appointmentCard.add(roomLabel);
+            }
+        }
 
 
         // =========================================================
@@ -550,7 +1003,7 @@ public class PatientDashboard extends JFrame {
 
         overviewTitle.setBounds(
                 45,
-                495,
+                523,
                 300,
                 30
         );
@@ -570,12 +1023,24 @@ public class PatientDashboard extends JFrame {
 
         totalCard.setBounds(
                 45,
-                535,
+                560,
                 270,
                 90
         );
 
         panel.add(totalCard);
+        if (patient != null) {
+
+            int totalAppointments =
+                    AppointmentDAO.getTotalAppointmentCount(
+                            patient.getPatientId()
+                    );
+
+            updateOverviewCardNumber(
+                    totalCard,
+                    String.valueOf(totalAppointments)
+            );
+        }
 
 
         // =========================================================
@@ -591,12 +1056,24 @@ public class PatientDashboard extends JFrame {
 
         pendingCard.setBounds(
                 335,
-                535,
+                560,
                 270,
                 90
         );
 
         panel.add(pendingCard);
+        if (patient != null) {
+
+            int pendingAppointments =
+                    AppointmentDAO.getPendingAppointmentCount(
+                            patient.getPatientId()
+                    );
+
+            updateOverviewCardNumber(
+                    pendingCard,
+                    String.valueOf(pendingAppointments)
+            );
+        }
 
 
         // =========================================================
@@ -612,7 +1089,7 @@ public class PatientDashboard extends JFrame {
 
         medicineCard.setBounds(
                 625,
-                535,
+                560,
                 290,
                 90
         );
@@ -681,6 +1158,32 @@ public class PatientDashboard extends JFrame {
 
 
         return card;
+    }
+
+    private void updateOverviewCardNumber(
+            JPanel card,
+            String number
+    ) {
+
+        for (Component component :
+                card.getComponents()) {
+
+            if (component instanceof JLabel) {
+
+                JLabel label =
+                        (JLabel) component;
+
+                if (
+                        label.getFont().getSize() == 26
+                                &&
+                                label.getFont().isBold()
+                ) {
+
+                    label.setText(number);
+                    return;
+                }
+            }
+        }
     }
 
     // =========================================================

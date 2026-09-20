@@ -189,4 +189,146 @@ public class AppointmentDAO {
             return false;
         }
     }
+
+    public static Appointment getCurrentAppointment(
+            String patientId
+    ) {
+
+        String sql =
+                "SELECT * FROM appointments " +
+                        "WHERE patient_id = ? " +
+                        "AND status IN ('PENDING', 'APPROVED') " +
+                        "ORDER BY appointment_date ASC, appointment_id DESC " +
+                        "LIMIT 1";
+
+        try (
+                Connection connection =
+                        DBConnection.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, patientId);
+
+            ResultSet result =
+                    statement.executeQuery();
+
+            if (result.next()) {
+
+                Appointment appointment =
+                        new Appointment(
+                                result.getString("patient_id"),
+                                result.getString("patient_name"),
+                                result.getString("department"),
+                                result.getString("appointment_type"),
+                                result.getDate("appointment_date")
+                                        .toLocalDate(),
+                                result.getString("preferred_time"),
+                                result.getString("reason"),
+                                result.getString("priority")
+                        );
+
+                appointment.setAppointmentId(
+                        result.getInt("appointment_id")
+                );
+
+                appointment.setStatus(
+                        result.getString("status")
+                );
+
+                appointment.setDoctorName(
+                        result.getString("doctor_name")
+                );
+
+                appointment.setConfirmedTime(
+                        result.getString("confirmed_time")
+                );
+
+                appointment.setRoomNumber(
+                        result.getString("room_number")
+                );
+
+                return appointment;
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static int getTotalAppointmentCount(
+            String patientId
+    ) {
+
+        String sql =
+                "SELECT COUNT(*) " +
+                        "FROM appointments " +
+                        "WHERE patient_id = ?";
+
+        try (
+                Connection connection =
+                        DBConnection.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, patientId);
+
+            ResultSet result =
+                    statement.executeQuery();
+
+            if (result.next()) {
+
+                return result.getInt(1);
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public static int getPendingAppointmentCount(
+            String patientId
+    ) {
+
+        String sql =
+                "SELECT COUNT(*) " +
+                        "FROM appointments " +
+                        "WHERE patient_id = ? " +
+                        "AND status = 'PENDING'";
+
+        try (
+                Connection connection =
+                        DBConnection.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, patientId);
+
+            ResultSet result =
+                    statement.executeQuery();
+
+            if (result.next()) {
+
+                return result.getInt(1);
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }
