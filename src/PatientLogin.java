@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class PatientLogin extends JFrame {
 
-    JTextField     phoneField;
+    JTextField phoneField;
     JPasswordField passwordField;
 
     public PatientLogin() {
@@ -104,12 +104,6 @@ public class PatientLogin extends JFrame {
         passwordField.setBounds(40, 265, 340, 42);
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 
-        //---------------- CHECKBOX ----------------//
-
-        JCheckBox remember = new JCheckBox("Remember Me");
-        remember.setBackground(new Color(245, 248, 255));
-        remember.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        remember.setBounds(40, 320, 150, 25);
 
         //---------------- LOGIN BUTTON ----------------//
 
@@ -141,7 +135,6 @@ public class PatientLogin extends JFrame {
         loginCard.add(phoneField);
         loginCard.add(passwordLabel);
         loginCard.add(passwordField);
-        loginCard.add(remember);
         loginCard.add(loginBtn);
         loginCard.add(registerText);
         loginCard.add(registerLink);
@@ -176,7 +169,7 @@ public class PatientLogin extends JFrame {
 
     private void handleLogin() {
 
-        String phone    = phoneField.getText().trim();
+        String phone = phoneField.getText().trim();
         String password = new String(passwordField.getPassword());
 
         if (phone.isEmpty() || password.isEmpty()) {
@@ -186,16 +179,19 @@ public class PatientLogin extends JFrame {
             return;
         }
 
-        Patient patient = DataStore.login(phone, password);
+        Patient patient = PatientDAO.login(phone, password);
 
         if (patient != null) {
+
             DataStore.currentPatient = patient;
-            JOptionPane.showMessageDialog(this,
-                    "Welcome back, " + patient.getFullName().split(" ")[0] + "!",
-                    "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+
+            SessionManager.saveSession(
+                    patient.getPatientId()
+            );
 
             new PatientDashboard();
             dispose();
+
         } else {
             JOptionPane.showMessageDialog(this,
                     "Invalid phone number or password.\nPlease try again.",
@@ -203,3 +199,4 @@ public class PatientLogin extends JFrame {
         }
     }
 }
+

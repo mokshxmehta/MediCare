@@ -216,6 +216,10 @@ public class PatientDashboard extends JFrame {
 
                 DataStore.currentPatient = null;
 
+                SessionManager.clearSession();
+
+                DataStore.currentPatient = null;
+
                 new WelcomePage();
                 dispose();
             }

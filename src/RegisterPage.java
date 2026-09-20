@@ -341,7 +341,7 @@ public class RegisterPage extends JFrame {
         }
 
         // --- Duplicate phone check ---
-        if (DataStore.phoneExists(phone)) {
+        if (PatientDAO.phoneExists(phone)) {
             showWarn("This phone number is already registered.\nPlease login instead.");
             return;
         }
@@ -352,8 +352,29 @@ public class RegisterPage extends JFrame {
                 phone, password, email, address, blood,
                 emergency, conditions, allergies);
 
-        DataStore.patients.add(patient);
+        boolean registered =
+                PatientDAO.registerPatient(patient);
+
+        if (!registered) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Registration failed.\nPlease try again.",
+                    "Registration Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
         DataStore.currentPatient = patient;
+
+        SessionManager.saveSession(
+                patient.getPatientId()
+        );
+
+        new PatientDashboard();
+        dispose();
 
         // --- Success ---
         JOptionPane.showMessageDialog(this,
@@ -363,9 +384,6 @@ public class RegisterPage extends JFrame {
                         + "  Welcome to MediCare+, " + name.split(" ")[0] + "!",
                 "Account Created",
                 JOptionPane.INFORMATION_MESSAGE);
-
-        new PatientDashboard();
-        dispose();
     }
 
     //---------------- HELPER METHODS ----------------//
