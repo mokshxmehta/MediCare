@@ -752,57 +752,910 @@ public class PatientDashboard extends JFrame {
 
     private JPanel createAppointmentPage() {
 
-        JPanel panel = createBasicPage(
-                "Appointments",
-                "Book and manage your hospital appointments."
+        // =========================================================
+        // OUTER PAGE
+        // =========================================================
+
+        JPanel page = new JPanel(new BorderLayout());
+        page.setBackground(BACKGROUND);
+
+
+        // =========================================================
+        // SCROLLABLE CONTENT
+        // =========================================================
+
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(BACKGROUND);
+
+        // This is taller than the visible dashboard area,
+        // allowing the user to scroll down.
+        panel.setPreferredSize(
+                new Dimension(950, 850)
         );
 
-        JLabel comingSoon = new JLabel(
-                "Appointment Booking"
+
+        // =========================================================
+        // PAGE TITLE
+        // =========================================================
+
+        JLabel title = new JLabel(
+                "Appointments"
         );
 
-        comingSoon.setFont(
+        title.setFont(
                 new Font("Segoe UI", Font.BOLD, 28)
         );
 
-        comingSoon.setForeground(BLUE);
+        title.setForeground(BLUE);
 
-        comingSoon.setBounds(50, 140, 400, 40);
-
-        panel.add(comingSoon);
-
-        JLabel info = new JLabel(
-                "<html>Select your preferred date, time, reason and priority.<br>"
-                        + "Your request will be sent to the hospital manager for approval.</html>"
+        title.setBounds(
+                50, 25, 500, 40
         );
 
-        info.setFont(
-                new Font("Segoe UI", Font.PLAIN, 16)
+        panel.add(title);
+
+
+        JLabel subtitle = new JLabel(
+                "Book and manage your hospital appointments."
         );
 
-        info.setForeground(TEXT_GRAY);
+        subtitle.setFont(
+                new Font("Segoe UI", Font.PLAIN, 15)
+        );
 
-        info.setBounds(50, 190, 650, 60);
+        subtitle.setForeground(TEXT_GRAY);
 
-        panel.add(info);
+        subtitle.setBounds(
+                50, 68, 650, 30
+        );
 
-        JButton bookButton = new JButton("BOOK APPOINTMENT");
+        panel.add(subtitle);
 
-        bookButton.setBounds(50, 280, 230, 50);
+
+        // =========================================================
+        // PATIENT INFORMATION CARD
+        // =========================================================
+
+        JPanel patientCard = new JPanel();
+
+        patientCard.setLayout(null);
+
+        patientCard.setBackground(Color.WHITE);
+
+        patientCard.setBounds(
+                50, 115, 850, 155
+        );
+
+        patientCard.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(225, 230, 235)
+                )
+        );
+
+        panel.add(patientCard);
+
+
+        JLabel patientTitle = new JLabel(
+                "Patient Information"
+        );
+
+        patientTitle.setFont(
+                new Font("Segoe UI", Font.BOLD, 17)
+        );
+
+        patientTitle.setForeground(BLUE);
+
+        patientTitle.setBounds(
+                20, 12, 300, 25
+        );
+
+        patientCard.add(patientTitle);
+
+
+        Patient patient =
+                DataStore.currentPatient;
+
+
+        // =========================================================
+        // PATIENT DATA
+        // =========================================================
+
+        String patientName =
+                patient != null
+                        ? patient.getFullName()
+                        : "-";
+
+        String patientId =
+                patient != null
+                        ? patient.getPatientId()
+                        : "-";
+
+        String age =
+                patient != null
+                        ? String.valueOf(patient.getAge())
+                        : "-";
+
+        String gender =
+                patient != null
+                        ? patient.getGender()
+                        : "-";
+
+        String phone =
+                patient != null
+                        ? patient.getPhone()
+                        : "-";
+
+        String bloodGroup =
+                patient != null
+                        ? patient.getBloodGroup()
+                        : "-";
+
+
+        // =========================================================
+        // ROW 1
+        // =========================================================
+
+        JLabel nameLabel =
+                new JLabel(
+                        "Name: " + patientName
+                );
+
+        nameLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        nameLabel.setBounds(
+                20, 50, 250, 25
+        );
+
+        patientCard.add(nameLabel);
+
+
+        JLabel idLabel =
+                new JLabel(
+                        "Patient ID: " + patientId
+                );
+
+        idLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        idLabel.setBounds(
+                300, 50, 250, 25
+        );
+
+        patientCard.add(idLabel);
+
+
+        JLabel ageLabel =
+                new JLabel(
+                        "Age: " + age
+                );
+
+        ageLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        ageLabel.setBounds(
+                550, 50, 250, 25
+        );
+
+        patientCard.add(ageLabel);
+
+
+        // =========================================================
+        // ROW 2
+        // =========================================================
+
+        JLabel genderLabel =
+                new JLabel(
+                        "Gender: " + gender
+                );
+
+        genderLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        genderLabel.setBounds(
+                20, 90, 250, 25
+        );
+
+        patientCard.add(genderLabel);
+
+
+        JLabel phoneLabel =
+                new JLabel(
+                        "Phone: " + phone
+                );
+
+        phoneLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        phoneLabel.setBounds(
+                300, 90, 250, 25
+        );
+
+        patientCard.add(phoneLabel);
+
+
+        JLabel bloodLabel =
+                new JLabel(
+                        "Blood Group: " + bloodGroup
+                );
+
+        bloodLabel.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        bloodLabel.setBounds(
+                550, 90, 250, 25
+        );
+
+        patientCard.add(bloodLabel);
+
+
+        // =========================================================
+        // BOOK APPOINTMENT CARD
+        // =========================================================
+
+        JPanel bookingCard = new JPanel();
+
+        bookingCard.setLayout(null);
+
+        bookingCard.setBackground(Color.WHITE);
+
+        bookingCard.setBounds(
+                50, 290, 850, 490
+        );
+
+        bookingCard.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(225, 230, 235)
+                )
+        );
+
+        panel.add(bookingCard);
+
+
+        JLabel bookingTitle =
+                new JLabel(
+                        "Book New Appointment"
+                );
+
+        bookingTitle.setFont(
+                new Font("Segoe UI", Font.BOLD, 20)
+        );
+
+        bookingTitle.setForeground(BLUE);
+
+        bookingTitle.setBounds(
+                20, 18, 350, 30
+        );
+
+        bookingCard.add(bookingTitle);
+
+
+        // =========================================================
+        // DEPARTMENT
+        // =========================================================
+
+        JLabel departmentLabel =
+                new JLabel(
+                        "Department"
+                );
+
+        departmentLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        departmentLabel.setBounds(
+                20, 70, 200, 25
+        );
+
+        bookingCard.add(departmentLabel);
+
+
+        JComboBox<String> departmentBox =
+                new JComboBox<>(
+                        new String[]{
+                                "Select Department",
+                                "General Medicine",
+                                "Dermatology",
+                                "Cardiology",
+                                "Orthopedics",
+                                "ENT",
+                                "Dentistry",
+                                "Pediatrics",
+                                "Gynecology"
+                        }
+                );
+
+        departmentBox.setBounds(
+                20, 98, 350, 38
+        );
+
+        departmentBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        bookingCard.add(departmentBox);
+
+
+        // =========================================================
+        // APPOINTMENT TYPE
+        // =========================================================
+
+        JLabel visitLabel =
+                new JLabel(
+                        "Appointment Type"
+                );
+
+        visitLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        visitLabel.setBounds(
+                450, 70, 200, 25
+        );
+
+        bookingCard.add(visitLabel);
+
+
+        JRadioButton firstVisit =
+                new JRadioButton(
+                        "First Visit"
+                );
+
+        JRadioButton followUp =
+                new JRadioButton(
+                        "Follow-up"
+                );
+
+
+        firstVisit.setBackground(Color.WHITE);
+        followUp.setBackground(Color.WHITE);
+
+
+        firstVisit.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        followUp.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+
+        firstVisit.setBounds(
+                450, 98, 120, 35
+        );
+
+        followUp.setBounds(
+                575, 98, 120, 35
+        );
+
+
+        ButtonGroup visitGroup =
+                new ButtonGroup();
+
+        visitGroup.add(firstVisit);
+        visitGroup.add(followUp);
+
+
+        firstVisit.setSelected(true);
+
+
+        bookingCard.add(firstVisit);
+        bookingCard.add(followUp);
+
+// =========================================================
+// DATE
+// =========================================================
+
+        JLabel dateLabel =
+                new JLabel(
+                        "Preferred Date"
+                );
+
+        dateLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        dateLabel.setBounds(
+                20, 155, 200, 25
+        );
+
+        bookingCard.add(dateLabel);
+
+
+// Current date
+        java.time.LocalDate today =
+                java.time.LocalDate.now();
+
+// Maximum booking date = one month from today
+        java.time.LocalDate maxDate =
+                today.plusMonths(1);
+
+
+// =========================================================
+// DAY COMBOBOX
+// =========================================================
+
+        JComboBox<Integer> dayBox =
+                new JComboBox<>();
+
+
+        for (int i = 1; i <= 31; i++) {
+            dayBox.addItem(i);
+        }
+
+
+        dayBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        dayBox.setBounds(
+                20, 183, 100, 38
+        );
+
+        bookingCard.add(dayBox);
+
+
+// =========================================================
+// MONTH COMBOBOX
+// =========================================================
+
+        JComboBox<String> monthBox =
+                new JComboBox<>(
+                        new String[]{
+                                "January",
+                                "February",
+                                "March",
+                                "April",
+                                "May",
+                                "June",
+                                "July",
+                                "August",
+                                "September",
+                                "October",
+                                "November",
+                                "December"
+                        }
+                );
+
+
+        monthBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        monthBox.setBounds(
+                130, 183, 140, 38
+        );
+
+        bookingCard.add(monthBox);
+
+
+        // =========================================================
+        // YEAR BOX
+        // =========================================================
+
+        JComboBox<Integer> yearBox =
+                new JComboBox<>();
+
+        yearBox.addItem(2026);
+        yearBox.setSelectedItem(2026);
+
+
+        yearBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        yearBox.setBounds(
+                280, 183, 90, 38
+        );
+
+        bookingCard.add(yearBox);
+
+
+        // =========================================================
+        // TIME
+        // =========================================================
+
+        JLabel timeLabel =
+                new JLabel(
+                        "Preferred Time"
+                );
+
+        timeLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        timeLabel.setBounds(
+                450, 155, 200, 25
+        );
+
+        bookingCard.add(timeLabel);
+
+
+        JComboBox<String> timeBox =
+                new JComboBox<>(
+                        new String[]{
+                                "Select Time",
+                                "09:00 AM - 10:00 AM",
+                                "10:00 AM - 11:00 AM",
+                                "11:00 AM - 12:00 PM",
+                                "12:00 PM - 01:00 PM",
+                                "02:00 PM - 03:00 PM",
+                                "03:00 PM - 04:00 PM",
+                                "04:00 PM - 05:00 PM",
+                                "05:00 PM - 06:00 PM"
+                        }
+                );
+
+
+        timeBox.setBounds(
+                450, 183, 350, 38
+        );
+
+        timeBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        bookingCard.add(timeBox);
+
+
+        // =========================================================
+        // REASON
+        // =========================================================
+
+        JLabel reasonLabel =
+                new JLabel(
+                        "Reason for Appointment"
+                );
+
+        reasonLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        reasonLabel.setBounds(
+                20, 240, 250, 25
+        );
+
+        bookingCard.add(reasonLabel);
+
+
+        JTextArea reasonArea =
+                new JTextArea();
+
+
+        reasonArea.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        reasonArea.setLineWrap(true);
+
+        reasonArea.setWrapStyleWord(true);
+
+
+        reasonArea.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(210, 215, 220)
+                )
+        );
+
+
+        JScrollPane reasonScroll =
+                new JScrollPane(
+                        reasonArea
+                );
+
+
+        reasonScroll.setBounds(
+                20, 270, 780, 70
+        );
+
+        bookingCard.add(reasonScroll);
+
+
+        // =========================================================
+        // PRIORITY
+        // =========================================================
+
+        JLabel priorityLabel =
+                new JLabel(
+                        "Priority"
+                );
+
+        priorityLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        priorityLabel.setBounds(
+                20, 355, 100, 25
+        );
+
+        bookingCard.add(priorityLabel);
+
+
+        JRadioButton normal =
+                new JRadioButton(
+                        "Normal"
+                );
+
+        JRadioButton urgent =
+                new JRadioButton(
+                        "Urgent"
+                );
+
+        JRadioButton emergency =
+                new JRadioButton(
+                        "Emergency"
+                );
+
+
+        normal.setBackground(Color.WHITE);
+        urgent.setBackground(Color.WHITE);
+        emergency.setBackground(Color.WHITE);
+
+
+        normal.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        urgent.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+        emergency.setFont(
+                new Font("Segoe UI", Font.PLAIN, 14)
+        );
+
+
+        normal.setBounds(
+                20, 380, 100, 30
+        );
+
+        urgent.setBounds(
+                130, 380, 100, 30
+        );
+
+        emergency.setBounds(
+                240, 380, 120, 30
+        );
+
+
+        ButtonGroup priorityGroup =
+                new ButtonGroup();
+
+        priorityGroup.add(normal);
+        priorityGroup.add(urgent);
+        priorityGroup.add(emergency);
+
+
+        normal.setSelected(true);
+
+
+        bookingCard.add(normal);
+        bookingCard.add(urgent);
+        bookingCard.add(emergency);
+
+
+        // =========================================================
+        // REQUEST BUTTON
+        // =========================================================
+
+        JButton bookButton =
+                new JButton(
+                        "REQUEST APPOINTMENT"
+                );
+
+
+        bookButton.setBounds(
+                570, 370, 230, 45
+        );
 
         bookButton.setBackground(BLUE);
 
         bookButton.setForeground(Color.WHITE);
 
         bookButton.setFont(
-                new Font("Segoe UI", Font.BOLD, 15)
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        14
+                )
         );
 
         bookButton.setFocusPainted(false);
 
-        panel.add(bookButton);
+        bookButton.setBorderPainted(false);
 
-        return panel;
+
+        bookingCard.add(bookButton);
+
+
+        // =========================================================
+        // TEMPORARY VALIDATION
+        // =========================================================
+
+        bookButton.addActionListener(e -> {
+
+            int selectedDay =
+                    (Integer) dayBox.getSelectedItem();
+
+            int selectedMonth =
+                    monthBox.getSelectedIndex() + 1;
+
+            int selectedYear =
+                    (Integer) yearBox.getSelectedItem();
+
+
+            java.time.LocalDate selectedDate;
+
+
+            try {
+
+                selectedDate =
+                        java.time.LocalDate.of(
+                                selectedYear,
+                                selectedMonth,
+                                selectedDay
+                        );
+
+            } catch (java.time.DateTimeException ex) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select a valid date.",
+                        "Invalid Date",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+// Cannot book in the past
+            if (selectedDate.isBefore(today)) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "You cannot book an appointment for a past date.",
+                        "Invalid Date",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+// Cannot book more than one month ahead
+            if (selectedDate.isAfter(maxDate)) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Appointments can only be booked up to one month in advance.",
+                        "Invalid Date",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            String department =
+                    (String) departmentBox.getSelectedItem();
+
+            String time =
+                    (String) timeBox.getSelectedItem();
+
+
+            if (department.equals(
+                    "Select Department")) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select a department.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+            if (time.equals(
+                    "Select Time")) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select a preferred time.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+            if (reasonArea.getText()
+                    .trim()
+                    .isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please enter the reason for your appointment.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+
+            String visitType =
+                    firstVisit.isSelected()
+                            ? "First Visit"
+                            : "Follow-up";
+
+
+            String priority;
+
+            if (urgent.isSelected()) {
+
+                priority = "Urgent";
+
+            } else if (emergency.isSelected()) {
+
+                priority = "Emergency";
+
+            } else {
+
+                priority = "Normal";
+            }
+
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Appointment form is valid.\n\n"
+                            + "Department: " + department + "\n"
+                            + "Type: " + visitType + "\n"
+                            + "Time: " + time + "\n"
+                            + "Priority: " + priority,
+                    "Appointment",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+
+        // =========================================================
+        // SCROLL PANE
+        // =========================================================
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        panel,
+                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                );
+
+
+        scrollPane.setBorder(null);
+
+        scrollPane.getVerticalScrollBar()
+                .setUnitIncrement(16);
+
+
+        // =========================================================
+        // RETURN PAGE
+        // =========================================================
+
+        page.add(
+                scrollPane,
+                BorderLayout.CENTER
+        );
+
+        return page;
     }
 
     // =========================================================
