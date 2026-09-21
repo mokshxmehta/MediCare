@@ -146,11 +146,8 @@ public class WelcomePage extends JFrame {
 
         adminBtn.addActionListener(e -> {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Admin Module Coming Soon!"
-            );
-            
+            new AdminLogin();
+            dispose();
 
         });
 
