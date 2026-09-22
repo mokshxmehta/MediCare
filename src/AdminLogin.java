@@ -35,7 +35,7 @@ public class AdminLogin extends JFrame {
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 22));
         subtitle.setBounds(70, 170, 350, 80);
 
-        ImageIcon icon = new ImageIcon("assets/hospital.png");
+        ImageIcon icon = new ImageIcon("assets/admin-panel.png");
 
         Image img = icon.getImage().getScaledInstance(
                 330,
