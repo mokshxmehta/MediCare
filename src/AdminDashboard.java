@@ -187,13 +187,24 @@ public class AdminDashboard extends JFrame {
         );
 
 
-        doctorsButton.addActionListener(e ->
-                cardLayout.show(
-                        contentPanel,
-                        "DOCTORS"
-                )
-        );
+        doctorsButton.addActionListener(e -> {
 
+            contentPanel.remove(2);
+
+            contentPanel.add(
+                    createDoctorsPage(),
+                    "DOCTORS",
+                    2
+            );
+
+            contentPanel.revalidate();
+            contentPanel.repaint();
+
+            cardLayout.show(
+                    contentPanel,
+                    "DOCTORS"
+            );
+        });
 
         logoutButton.addActionListener(e -> {
 
@@ -3477,23 +3488,40 @@ public class AdminDashboard extends JFrame {
                     );
 
 
-                    prescriptionInfo.setText(
-                            "<html>No prescription has been added.<br>" +
-                                    "Click the button below to add medicines.</html>"
-                    );
+                    List<Prescription> prescriptions =
+                            PrescriptionDAO.getPrescriptionsByAppointment(
+                                    appointmentId
+                            );
+
+                    if (prescriptions.isEmpty()) {
+
+                        prescriptionInfo.setText(
+                                "<html>No prescription has been added.<br>" +
+                                        "Click the button below to add medicines.</html>"
+                        );
+
+                    } else {
+
+                        prescriptionInfo.setText(
+                                "<html><b>Prescription Added</b><br><br>" +
+                                        prescriptions.size() +
+                                        " medicine" +
+                                        (prescriptions.size() == 1 ? "" : "s") +
+                                        " prescribed.</html>"
+                        );
+                    }
                 });
 
 
         // =================================================
         // ADD PRESCRIPTION
         // =================================================
-
         addPrescriptionButton.addActionListener(e -> {
 
             int selectedRow =
                     doctorTable.getSelectedRow();
 
-
+            // First check whether a patient/appointment is selected
             if (selectedRow == -1) {
 
                 JOptionPane.showMessageDialog(
@@ -3504,7 +3532,7 @@ public class AdminDashboard extends JFrame {
                 return;
             }
 
-
+            // Now safely get the appointment ID
             int appointmentId =
                     Integer.parseInt(
                             doctorTable
@@ -3515,12 +3543,11 @@ public class AdminDashboard extends JFrame {
                                     .toString()
                     );
 
-
+            // Load complete appointment from database
             Appointment appointment =
                     AdminDAO.getAppointmentById(
                             appointmentId
                     );
-
 
             if (appointment == null) {
 
@@ -3532,7 +3559,7 @@ public class AdminDashboard extends JFrame {
                 return;
             }
 
-
+            // Open prescription window
             openPrescriptionWindow(
                     appointment
             );
@@ -4294,94 +4321,153 @@ public class AdminDashboard extends JFrame {
         // SAVE
         // =================================================
 
-        saveButton.addActionListener(
-                e -> {
+        saveButton.addActionListener(e -> {
 
-                    if (medicineCards.isEmpty()) {
+            if (medicineCards.isEmpty()) {
 
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Please add at least one medicine."
-                        );
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Please add at least one medicine."
+                );
 
-                        return;
-                    }
-
-
-                    // Validate every medicine
-
-                    for (
-                            int i = 0;
-                            i < medicineCards.size();
-                            i++
-                    ) {
-
-                        JPanel card =
-                                medicineCards.get(i);
+                return;
+            }
 
 
-                        JTextField nameField =
-                                (JTextField)
-                                        card.getComponent(2);
+            // ==========================================
+            // CHECK ALL FIELDS
+            // ==========================================
 
-                        JTextField descriptionField =
-                                (JTextField)
-                                        card.getComponent(4);
+            for (int i = 0; i < medicineCards.size(); i++) {
 
-                        JTextField dosageField =
-                                (JTextField)
-                                        card.getComponent(6);
+                JPanel card = medicineCards.get(i);
 
-                        JTextField whenField =
-                                (JTextField)
-                                        card.getComponent(8);
+                JTextField nameField =
+                        (JTextField) card.getComponent(2);
 
+                JTextField descriptionField =
+                        (JTextField) card.getComponent(4);
 
-                        if (
-                                nameField
-                                        .getText()
-                                        .trim()
-                                        .isEmpty()
-                                        ||
-                                        descriptionField
-                                                .getText()
-                                                .trim()
-                                                .isEmpty()
-                                        ||
-                                        dosageField
-                                                .getText()
-                                                .trim()
-                                                .isEmpty()
-                                        ||
-                                        whenField
-                                                .getText()
-                                                .trim()
-                                                .isEmpty()
-                        ) {
+                JTextField dosageField =
+                        (JTextField) card.getComponent(6);
 
-                            JOptionPane.showMessageDialog(
-                                    dialog,
-                                    "Please fill all fields for Medicine "
-                                            + (i + 1)
-                            );
-
-                            return;
-                        }
-                    }
+                JTextField whenField =
+                        (JTextField) card.getComponent(8);
 
 
-                    // Database connection will be added next
+                if (
+                        nameField.getText().trim().isEmpty()
+                                ||
+                                descriptionField.getText().trim().isEmpty()
+                                ||
+                                dosageField.getText().trim().isEmpty()
+                                ||
+                                whenField.getText().trim().isEmpty()
+                ) {
 
                     JOptionPane.showMessageDialog(
                             dialog,
-                            "Prescription added successfully."
+                            "Please fill all fields for Medicine "
+                                    + (i + 1)
                     );
 
-                    dialog.dispose();
+                    return;
                 }
-        );
+            }
 
 
+            // ==========================================
+            // SAVE EACH MEDICINE
+            // ==========================================
+
+            boolean allSaved = true;
+
+
+            for (JPanel card : medicineCards) {
+
+                JTextField nameField =
+                        (JTextField) card.getComponent(2);
+
+                JTextField descriptionField =
+                        (JTextField) card.getComponent(4);
+
+                JTextField dosageField =
+                        (JTextField) card.getComponent(6);
+
+                JTextField whenField =
+                        (JTextField) card.getComponent(8);
+
+
+                String medicineName =
+                        nameField.getText().trim();
+
+                String description =
+                        descriptionField.getText().trim();
+
+                String dosage =
+                        dosageField.getText().trim();
+
+                String whenToTake =
+                        whenField.getText().trim();
+
+
+                Prescription prescription =
+                        new Prescription(
+
+                                appointment.getAppointmentId(),
+
+                                appointment.getPatientId(),
+
+                                appointment.getDoctorName(),
+
+                                medicineName,
+
+                                description,
+
+                                dosage,
+
+                                whenToTake
+                        );
+
+
+                boolean saved =
+                        PrescriptionDAO.addPrescription(
+                                prescription
+                        );
+
+
+                if (!saved) {
+
+                    allSaved = false;
+                    break;
+                }
+            }
+
+
+            // ==========================================
+            // RESULT
+            // ==========================================
+
+            if (allSaved) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Prescription saved successfully!"
+                );
+
+                dialog.dispose();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Failed to save prescription.\n"
+                                + "Please check your database connection.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
         dialog.setVisible(true);
     }
 }
