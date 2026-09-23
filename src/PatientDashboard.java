@@ -3002,8 +3002,8 @@ public class PatientDashboard extends JFrame {
 
 
     // =========================================================
-// PRESCRIPTION DETAILS WINDOW
-// =========================================================
+    // PRESCRIPTION DETAILS WINDOW
+    // =========================================================
 
     private void openPrescriptionDetails(
             Appointment appointment,
@@ -3019,8 +3019,8 @@ public class PatientDashboard extends JFrame {
                 );
 
         dialog.setSize(
-                600,
-                650
+                820,
+                700
         );
 
         dialog.setLocationRelativeTo(
@@ -3029,6 +3029,23 @@ public class PatientDashboard extends JFrame {
 
         dialog.setLayout(
                 new BorderLayout()
+        );
+
+        // =====================================================
+        // MAIN CONTAINER
+        // =====================================================
+
+        JPanel mainPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        mainPanel.setBackground(
+                BACKGROUND
+        );
+
+        dialog.add(
+                mainPanel
         );
 
 
@@ -3052,10 +3069,10 @@ public class PatientDashboard extends JFrame {
 
         header.setBorder(
                 BorderFactory.createEmptyBorder(
-                        20,
                         25,
-                        15,
-                        25
+                        30,
+                        20,
+                        30
                 )
         );
 
@@ -3069,7 +3086,7 @@ public class PatientDashboard extends JFrame {
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
-                        22
+                        25
                 )
         );
 
@@ -3082,173 +3099,382 @@ public class PatientDashboard extends JFrame {
         );
 
 
-        header.add(
-                Box.createVerticalStrut(12)
-        );
-
-
-        JLabel appointmentDate =
+        JLabel subtitle =
                 new JLabel(
-                        "Date of Appointment: " +
-                                appointment.getAppointmentDate()
+                        "Complete details of medicines prescribed by your doctor."
                 );
 
-        appointmentDate.setFont(
+        subtitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
-                        13
+                        14
                 )
         );
 
+        subtitle.setForeground(
+                TEXT_GRAY
+        );
+
         header.add(
-                appointmentDate
+                Box.createVerticalStrut(5)
+        );
+
+        header.add(
+                subtitle
         );
 
 
-        JLabel age =
-                new JLabel(
-                        "Age: " +
+        header.add(
+                Box.createVerticalStrut(18)
+        );
+
+
+        // =====================================================
+        // APPOINTMENT / PATIENT INFORMATION
+        // =====================================================
+
+        JPanel infoPanel =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                5,
+                                1,
+                                0
+                        )
+                );
+
+        infoPanel.setBackground(
+                new Color(
+                        248,
+                        250,
+                        255
+                )
+        );
+
+        infoPanel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(
+                                        215,
+                                        225,
+                                        240
+                                )
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                15,
+                                15,
+                                15,
+                                15
+                        )
+                )
+        );
+
+
+        // Patient
+
+        JPanel patientInfo =
+                createPrescriptionInfoBlock(
+                        "Patient Name",
+                        appointment.getPatientName()
+                );
+
+        JPanel dateInfo =
+                createPrescriptionInfoBlock(
+                        "Appointment Date",
+                        appointment.getAppointmentDate()
+                                .format(
+                                        java.time.format.DateTimeFormatter.ofPattern("dd MM yyyy")
+                                )
+                );
+
+        infoPanel.add(
+                dateInfo
+        );
+
+        infoPanel.add(
+                patientInfo
+        );
+
+
+        // Age
+
+        JPanel ageInfo =
+                createPrescriptionInfoBlock(
+                        "Age",
+                        String.valueOf(
                                 patientAge
+                        )
                 );
 
-        age.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        header.add(
-                age
+        infoPanel.add(
+                ageInfo
         );
 
 
-        JLabel doctor =
-                new JLabel(
-                        "Doctor: " +
-                                appointment.getDoctorName()
+        // Doctor
+
+        JPanel doctorInfo =
+                createPrescriptionInfoBlock(
+                        "Doctor",
+                        appointment.getDoctorName()
                 );
 
-        doctor.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        header.add(
-                doctor
+        infoPanel.add(
+                doctorInfo
         );
 
 
-        JLabel department =
-                new JLabel(
-                        "Department: " +
-                                appointment.getDepartment()
+        // Department
+
+        JPanel departmentInfo =
+                createPrescriptionInfoBlock(
+                        "Department",
+                        appointment.getDepartment()
                 );
 
-        department.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
+        infoPanel.add(
+                departmentInfo
         );
+
 
         header.add(
-                department
+                infoPanel
         );
 
 
-        dialog.add(
+        mainPanel.add(
                 header,
                 BorderLayout.NORTH
         );
 
 
         // =====================================================
-        // MEDICINES CONTAINER
+        // MEDICINES SECTION
         // =====================================================
 
-        JPanel medicinesPanel =
+        JPanel medicinesContainer =
                 new JPanel();
 
-        medicinesPanel.setLayout(
+        medicinesContainer.setLayout(
                 new BoxLayout(
-                        medicinesPanel,
+                        medicinesContainer,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        medicinesPanel.setBackground(
+        medicinesContainer.setBackground(
                 BACKGROUND
         );
 
-        medicinesPanel.setBorder(
+        medicinesContainer.setBorder(
                 BorderFactory.createEmptyBorder(
-                        10,
                         20,
+                        30,
                         20,
-                        20
+                        30
                 )
         );
 
 
+        JLabel medicinesTitle =
+                new JLabel(
+                        "Prescribed Medicines"
+                );
+
+        medicinesTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        22
+                )
+        );
+
+        medicinesTitle.setForeground(
+                TEXT_DARK
+        );
+
+        title.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        medicinesContainer.add(
+                medicinesTitle
+        );
+
+
+        JLabel medicinesSubtitle =
+                new JLabel(
+                        "Take your medicines as advised and complete the full course."
+                );
+
+        medicinesSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        medicinesSubtitle.setForeground(
+                TEXT_GRAY
+        );
+
+        subtitle.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        medicinesContainer.add(
+                Box.createVerticalStrut(4)
+        );
+
+        medicinesContainer.add(
+                medicinesSubtitle
+        );
+
+
+        medicinesContainer.add(
+                Box.createVerticalStrut(15)
+        );
+
+
         // =====================================================
-        // MEDICINE CARDS WILL BE ADDED HERE FROM DB
+        // MEDICINE CARDS
         // =====================================================
 
-        for (Prescription prescription :
-                prescriptions) {
+        for (
+                int i = 0;
+                i < prescriptions.size();
+                i++
+        ) {
 
-            medicinesPanel.add(
+            Prescription prescription =
+                    prescriptions.get(i);
+
+            JPanel medicineCard =
                     createPrescriptionCard(
-                            prescription
-                    )
+                            prescription,
+                            i + 1
+                    );
+
+            medicinesContainer.add(
+                    medicineCard
             );
 
-            medicinesPanel.add(
-                    Box.createVerticalStrut(12)
-            );
+            if (
+                    i <
+                            prescriptions.size() - 1
+            ) {
+
+                medicinesContainer.add(
+                        Box.createVerticalStrut(12)
+                );
+            }
         }
 
 
         JScrollPane medicineScroll =
                 new JScrollPane(
-                        medicinesPanel,
+                        medicinesContainer,
                         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
                 );
 
-        medicineScroll.setBorder(null);
+        medicineScroll.setBorder(
+                BorderFactory.createEmptyBorder()
+        );
 
         medicineScroll.getVerticalScrollBar()
                 .setUnitIncrement(16);
 
-        dialog.add(
+
+        mainPanel.add(
                 medicineScroll,
                 BorderLayout.CENTER
         );
 
 
         // =====================================================
-        // CLOSE BUTTON
+        // FOOTER
         // =====================================================
 
-        JPanel bottomPanel =
+        JPanel footer =
                 new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT,
+                        new BorderLayout(
                                 15,
-                                10
+                                0
                         )
                 );
 
-        bottomPanel.setBackground(
+        footer.setBackground(
                 Color.WHITE
+        );
+
+        footer.setBorder(
+                BorderFactory.createEmptyBorder(
+                        12,
+                        30,
+                        15,
+                        30
+                )
+        );
+
+
+        JLabel note =
+                new JLabel(
+                        "<html>Please follow the dosage and timings as advised by your doctor.</html>"
+                );
+
+        note.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        note.setForeground(
+                new Color(
+                        55,
+                        75,
+                        115
+                )
+        );
+
+        note.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(
+                                        220,
+                                        230,
+                                        245
+                                )
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                10,
+                                12,
+                                10,
+                                12
+                        )
+                )
+        );
+
+        note.setOpaque(
+                true
+        );
+
+        note.setBackground(
+                new Color(
+                        240,
+                        246,
+                        255
+                )
+        );
+
+
+        footer.add(
+                note,
+                BorderLayout.CENTER
         );
 
 
@@ -3261,58 +3487,158 @@ public class PatientDashboard extends JFrame {
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
-                        12
+                        13
                 )
         );
 
-        closeButton.setFocusPainted(false);
+        closeButton.setForeground(
+                Color.WHITE
+        );
+
+        closeButton.setBackground(
+                BLUE
+        );
+
+        closeButton.setFocusPainted(
+                false
+        );
+
+        closeButton.setBorderPainted(
+                false
+        );
+
+        closeButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        closeButton.setPreferredSize(
+                new Dimension(
+                        120,
+                        42
+                )
+        );
 
         closeButton.addActionListener(
                 e -> dialog.dispose()
         );
 
-        bottomPanel.add(
-                closeButton
+        footer.add(
+                closeButton,
+                BorderLayout.EAST
         );
 
-        dialog.add(
-                bottomPanel,
+
+        mainPanel.add(
+                footer,
                 BorderLayout.SOUTH
         );
 
 
-        dialog.setVisible(true);
+        dialog.setVisible(
+                true
+        );
+    }
+
+    private JPanel createPrescriptionInfoBlock(
+            String label,
+            String value
+    ) {
+
+        JPanel panel =
+                new JPanel();
+
+        panel.setLayout(
+                new BoxLayout(
+                        panel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        panel.setBackground(
+                new Color(
+                        248,
+                        250,
+                        255
+                )
+        );
+
+
+        JLabel labelText =
+                new JLabel(
+                        label
+                );
+
+        labelText.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        labelText.setForeground(
+                new Color(
+                        75,
+                        95,
+                        135
+                ));
+
+
+        JLabel valueText =
+                new JLabel(
+                        value
+                );
+
+        valueText.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        14
+                )
+        );
+
+        valueText.setForeground(
+                TEXT_DARK
+        );
+
+
+        panel.add(
+                labelText
+        );
+
+        panel.add(
+                Box.createVerticalStrut(4)
+        );
+
+        panel.add(
+                valueText
+        );
+
+
+        return panel;
     }
 
     // =========================================================
-// PRESCRIPTION MEDICINE CARD
-// =========================================================
+    // PRESCRIPTION MEDICINE CARD
+    // =========================================================
 
     private JPanel createPrescriptionCard(
-            Prescription prescription
+            Prescription prescription,
+            int medicineNumber
     ) {
 
         JPanel card =
-                new JPanel();
-
-        card.setLayout(null);
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                0
+                        )
+                );
 
         card.setBackground(
                 Color.WHITE
-        );
-
-        card.setPreferredSize(
-                new Dimension(
-                        520,
-                        190
-                )
-        );
-
-        card.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        190
-                )
         );
 
         card.setBorder(
@@ -3325,12 +3651,99 @@ public class PatientDashboard extends JFrame {
                                 )
                         ),
                         BorderFactory.createEmptyBorder(
-                                5,
-                                5,
-                                5,
-                                5
+                                20,
+                                20,
+                                20,
+                                20
                         )
                 )
+        );
+
+        card.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        card.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        245
+                )
+        );
+
+        card.setPreferredSize(
+                new Dimension(
+                        700,
+                        245
+                )
+        );
+
+        card.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        245
+                )
+        );
+
+
+        // =====================================================
+        // MEDICINE NUMBER
+        // =====================================================
+
+        JLabel numberLabel =
+                new JLabel(
+                        "Medicine " + medicineNumber
+                );
+
+        numberLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        numberLabel.setForeground(
+                BLUE
+        );
+
+        numberLabel.setPreferredSize(
+                new Dimension(
+                        90,
+                        30
+                )
+        );
+
+        numberLabel.setVerticalAlignment(
+                SwingConstants.TOP
+        );
+
+
+        card.add(
+                numberLabel,
+                BorderLayout.WEST
+        );
+
+
+        // =====================================================
+        // MAIN CONTENT
+        // =====================================================
+
+        JPanel content =
+                new JPanel();
+
+        content.setLayout(
+                new BoxLayout(
+                        content,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        content.setBackground(
+                Color.WHITE
+        );
+
+        content.setAlignmentX(
+                Component.LEFT_ALIGNMENT
         );
 
 
@@ -3347,7 +3760,7 @@ public class PatientDashboard extends JFrame {
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
-                        17
+                        18
                 )
         );
 
@@ -3355,15 +3768,90 @@ public class PatientDashboard extends JFrame {
                 TEXT_DARK
         );
 
-        medicineName.setBounds(
-                20,
-                15,
-                450,
-                30
+        medicineName.setAlignmentX(
+                Component.LEFT_ALIGNMENT
         );
 
-        card.add(
+        content.add(
                 medicineName
+        );
+
+
+        // =====================================================
+        // DESCRIPTION / SHORT INFORMATION
+        // =====================================================
+
+        JLabel shortDescription =
+                new JLabel(
+                        "<html>" +
+                                prescription.getDescription() +
+                                "</html>"
+                );
+
+        shortDescription.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        shortDescription.setForeground(
+                TEXT_GRAY
+        );
+
+        shortDescription.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        content.add(
+                Box.createVerticalStrut(4)
+        );
+
+        content.add(
+                shortDescription
+        );
+
+
+        content.add(
+                Box.createVerticalStrut(12)
+        );
+
+
+        // =====================================================
+        // DOSAGE + WHEN TO TAKE
+        // =====================================================
+
+        JPanel detailsPanel =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                2,
+                                0,
+                                0
+                        )
+                );
+
+        detailsPanel.setBackground(
+                new Color(
+                        245,
+                        248,
+                        253
+                )
+        );
+
+        detailsPanel.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(
+                                225,
+                                232,
+                                242
+                        )
+                )
+        );
+
+        detailsPanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
         );
 
 
@@ -3371,33 +3859,92 @@ public class PatientDashboard extends JFrame {
         // DOSAGE
         // =====================================================
 
-        JLabel dosage =
+        JPanel dosagePanel =
+                new JPanel();
+
+        dosagePanel.setLayout(
+                new BoxLayout(
+                        dosagePanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        dosagePanel.setBackground(
+                new Color(
+                        245,
+                        248,
+                        253
+                )
+        );
+
+        dosagePanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        10,
+                        15,
+                        10,
+                        15
+                )
+        );
+
+        dosagePanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
+        JLabel dosageTitle =
                 new JLabel(
-                        "Dosage: " +
-                                prescription.getDosage()
+                        "Dosage"
                 );
 
-        dosage.setFont(
+        dosageTitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
+                        12
+                )
+        );
+
+        dosageTitle.setForeground(
+                new Color(
+                        75,
+                        95,
+                        135
+                ));
+
+
+        JLabel dosageValue =
+                new JLabel(
+                        prescription.getDosage()
+                );
+
+        dosageValue.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
                         13
                 )
         );
 
-        dosage.setForeground(
-                TEXT_GRAY
+        dosageValue.setForeground(
+                TEXT_DARK
         );
 
-        dosage.setBounds(
-                20,
-                55,
-                450,
-                25
+
+        dosagePanel.add(
+                dosageTitle
         );
 
-        card.add(
-                dosage
+        dosagePanel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        dosagePanel.add(
+                dosageValue
+        );
+
+
+        detailsPanel.add(
+                dosagePanel
         );
 
 
@@ -3405,46 +3952,140 @@ public class PatientDashboard extends JFrame {
         // WHEN TO TAKE
         // =====================================================
 
-        JLabel whenToTake =
+        JPanel whenPanel =
+                new JPanel();
+
+        whenPanel.setLayout(
+                new BoxLayout(
+                        whenPanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        whenPanel.setBackground(
+                new Color(
+                        245,
+                        248,
+                        253
+                )
+        );
+
+        whenPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        10,
+                        15,
+                        10,
+                        15
+                )
+        );
+
+
+        JLabel whenTitle =
                 new JLabel(
-                        "When to Take: " +
-                                prescription.getWhenToTake()
+                        "When to Take"
                 );
 
-        whenToTake.setFont(
+        whenTitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
+                        12
+                )
+        );
+
+        whenTitle.setForeground(
+                new Color(
+                        75,
+                        95,
+                        135
+                ));
+
+
+        JLabel whenValue =
+                new JLabel(
+                        "<html>" +
+                                prescription.getWhenToTake() +
+                                "</html>"
+                );
+
+        whenValue.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
                         13
                 )
         );
 
-        whenToTake.setForeground(
-                TEXT_GRAY
+        whenValue.setForeground(
+                TEXT_DARK
         );
 
-        whenToTake.setBounds(
-                20,
-                82,
-                450,
-                25
+
+        whenPanel.add(
+                whenTitle
         );
 
-        card.add(
-                whenToTake
+        whenPanel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        whenPanel.add(
+                whenValue
+        );
+
+
+        detailsPanel.add(
+                whenPanel
+        );
+
+
+        content.add(
+                detailsPanel
+        );
+
+
+        content.add(
+                Box.createVerticalStrut(10)
         );
 
 
         // =====================================================
-        // DESCRIPTION
+        // DESCRIPTION BOX
         // =====================================================
 
-        JLabel descriptionLabel =
-                new JLabel(
-                        "Description:"
+        JPanel descriptionPanel =
+                new JPanel(
+                        new BorderLayout()
                 );
 
-        descriptionLabel.setFont(
+        descriptionPanel.setBackground(
+                new Color(
+                        240,
+                        247,
+                        255
+                )
+        );
+
+        descriptionPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        9,
+                        12,
+                        9,
+                        12
+                )
+        );
+
+        descriptionPanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
+        JLabel descriptionTitle =
+                new JLabel(
+                        "Description"
+                );
+
+        descriptionTitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
@@ -3452,19 +4093,8 @@ public class PatientDashboard extends JFrame {
                 )
         );
 
-        descriptionLabel.setForeground(
-                TEXT_DARK
-        );
-
-        descriptionLabel.setBounds(
-                20,
-                112,
-                100,
-                25
-        );
-
-        card.add(
-                descriptionLabel
+        descriptionTitle.setForeground(
+                BLUE
         );
 
 
@@ -3484,18 +4114,50 @@ public class PatientDashboard extends JFrame {
         );
 
         description.setForeground(
-                TEXT_GRAY
+                new Color(
+                        55,
+                        75,
+                        115
+                ));
+
+
+        JPanel descriptionText =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        descriptionText.setBackground(
+                new Color(
+                        240,
+                        247,
+                        255
+                ));
+
+        descriptionText.add(
+                descriptionTitle,
+                BorderLayout.NORTH
         );
 
-        description.setBounds(
-                20,
-                137,
-                470,
-                40
+        descriptionText.add(
+                description,
+                BorderLayout.CENTER
         );
+
+
+        descriptionPanel.add(
+                descriptionText,
+                BorderLayout.CENTER
+        );
+
+
+        content.add(
+                descriptionPanel
+        );
+
 
         card.add(
-                description
+                content,
+                BorderLayout.CENTER
         );
 
 
