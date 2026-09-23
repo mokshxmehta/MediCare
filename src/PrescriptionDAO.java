@@ -138,6 +138,11 @@ public class PrescriptionDAO {
 
         return prescriptions;
     }
+
+    // =========================================================
+    // GET PRESCRIPTIONS BY APPOINTMENT
+    // =========================================================
+
     public static List<Prescription> getPrescriptionsByAppointment(
             int appointmentId
     ) {
@@ -163,20 +168,34 @@ public class PrescriptionDAO {
                     appointmentId
             );
 
-            ResultSet resultSet =
+            ResultSet result =
                     statement.executeQuery();
 
-            while (resultSet.next()) {
+            while (result.next()) {
 
                 Prescription prescription =
                         new Prescription(
-                                resultSet.getInt("appointment_id"),
-                                resultSet.getString("patient_id"),
-                                resultSet.getString("doctor_name"),
-                                resultSet.getString("medicine_name"),
-                                resultSet.getString("description"),
-                                resultSet.getString("dosage"),
-                                resultSet.getString("when_to_take")
+                                result.getInt(
+                                        "appointment_id"
+                                ),
+                                result.getString(
+                                        "patient_id"
+                                ),
+                                result.getString(
+                                        "doctor_name"
+                                ),
+                                result.getString(
+                                        "medicine_name"
+                                ),
+                                result.getString(
+                                        "description"
+                                ),
+                                result.getString(
+                                        "dosage"
+                                ),
+                                result.getString(
+                                        "when_to_take"
+                                )
                         );
 
                 prescriptions.add(
@@ -185,6 +204,7 @@ public class PrescriptionDAO {
             }
 
         } catch (Exception e) {
+
             e.printStackTrace();
         }
 

@@ -194,9 +194,26 @@ public class PatientDashboard extends JFrame {
                 cardLayout.show(contentPanel, "APPOINTMENTS")
         );
 
-        medicineButton.addActionListener(e ->
-                cardLayout.show(contentPanel, "MEDICINE")
-        );
+        medicineButton.addActionListener(e -> {
+
+            contentPanel.remove(
+                    contentPanel.getComponent(2)
+            );
+
+            contentPanel.add(
+                    createMedicinePage(),
+                    "MEDICINE",
+                    2
+            );
+
+            contentPanel.revalidate();
+            contentPanel.repaint();
+
+            cardLayout.show(
+                    contentPanel,
+                    "MEDICINE"
+            );
+        });
 
         historyButton.addActionListener(e ->
                 cardLayout.show(contentPanel, "HISTORY")
@@ -1032,10 +1049,10 @@ public class PatientDashboard extends JFrame {
         // =========================================================
 
         JPanel totalCard = createOverviewCard(
-                        "Total Appointments",
-                        "0",
-                        BLUE
-                );
+                "Total Appointments",
+                "0",
+                BLUE
+        );
 
         totalCard.setBounds(
                 45,
@@ -2351,46 +2368,1138 @@ public class PatientDashboard extends JFrame {
     }
 
     // =========================================================
-    // MEDICINE PAGE
-    // =========================================================
+// MEDICINE REMINDER PAGE
+// =========================================================
 
     private JPanel createMedicinePage() {
 
-        JPanel panel = createBasicPage(
-                "Medicine Reminder",
-                "Keep track of your prescribed medicines."
+        JPanel page =
+                new JPanel(new BorderLayout());
+
+        page.setBackground(BACKGROUND);
+
+
+        // =====================================================
+        // MAIN CONTENT PANEL
+        // =====================================================
+
+        JPanel panel =
+                new JPanel();
+
+        panel.setLayout(null);
+        panel.setBackground(BACKGROUND);
+
+        // Large enough for scrolling
+        panel.setPreferredSize(
+                new Dimension(
+                        950,
+                        900
+                )
         );
 
-        JLabel title = new JLabel(
-                "Your Medicines"
-        );
+
+        // =====================================================
+        // PAGE TITLE
+        // =====================================================
+
+        JLabel title =
+                new JLabel(
+                        "Medicine Reminder"
+                );
 
         title.setFont(
-                new Font("Segoe UI", Font.BOLD, 28)
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        30
+                )
         );
 
-        title.setForeground(BLUE);
+        title.setForeground(TEXT_DARK);
 
-        title.setBounds(50, 140, 400, 40);
+        title.setBounds(
+                50,
+                30,
+                500,
+                40
+        );
 
         panel.add(title);
 
-        JLabel info = new JLabel(
-                "<html>No medicines have been added yet.<br>"
-                        + "Your prescribed medicines will appear here.</html>"
+
+        // =====================================================
+        // PAGE SUBTITLE
+        // =====================================================
+
+        JLabel subtitle =
+                new JLabel(
+                        "View prescriptions from your completed appointments."
+                );
+
+        subtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        15
+                )
         );
 
-        info.setFont(
-                new Font("Segoe UI", Font.PLAIN, 16)
+        subtitle.setForeground(TEXT_GRAY);
+
+        subtitle.setBounds(
+                50,
+                72,
+                700,
+                30
         );
 
-        info.setForeground(TEXT_GRAY);
+        panel.add(subtitle);
 
-        info.setBounds(50, 195, 600, 60);
 
-        panel.add(info);
+        // =====================================================
+        // SECTION TITLE
+        // =====================================================
 
-        return panel;
+        JLabel sectionTitle =
+                new JLabel(
+                        "Completed Appointments"
+                );
+
+        sectionTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        sectionTitle.setForeground(TEXT_DARK);
+
+        sectionTitle.setBounds(
+                50,
+                125,
+                400,
+                30
+        );
+
+        panel.add(sectionTitle);
+
+
+        // =====================================================
+        // APPOINTMENT CONTAINER
+        // =====================================================
+
+        JPanel appointmentsPanel =
+                new JPanel();
+
+        appointmentsPanel.setLayout(
+                new BoxLayout(
+                        appointmentsPanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        appointmentsPanel.setBackground(
+                BACKGROUND
+        );
+
+        appointmentsPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        5,
+                        0,
+                        20,
+                        0
+                )
+        );
+
+
+        // =====================================================
+        // EMPTY STATE
+        // =====================================================
+
+        JLabel emptyLabel =
+                new JLabel(
+                        "<html><div style='text-align:center;'>" +
+                                "<b>No completed appointments yet</b><br>" +
+                                "Your completed appointments and prescriptions " +
+                                "will appear here." +
+                                "</div></html>",
+                        SwingConstants.CENTER
+                );
+
+        emptyLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+        emptyLabel.setForeground(
+                TEXT_GRAY
+        );
+
+        emptyLabel.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        emptyLabel.setPreferredSize(
+                new Dimension(
+                        850,
+                        100
+                )
+        );
+
+        appointmentsPanel.add(
+                emptyLabel
+        );
+
+
+        // =====================================================
+        // APPOINTMENT SCROLL
+        // =====================================================
+
+        JScrollPane appointmentScroll =
+                new JScrollPane(
+                        appointmentsPanel,
+                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                );
+
+        appointmentScroll.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(
+                                215,
+                                225,
+                                240
+                        )
+                )
+        );
+
+        appointmentScroll.getVerticalScrollBar()
+                .setUnitIncrement(16);
+
+        appointmentScroll.setBounds(
+                50,
+                165,
+                865,
+                650
+        );
+
+        panel.add(
+                appointmentScroll
+        );
+
+
+        // =====================================================
+// LOAD COMPLETED APPOINTMENTS FROM DATABASE
+// =====================================================
+
+        if (DataStore.currentPatient != null) {
+
+            String patientId =
+                    DataStore.currentPatient.getPatientId();
+
+            List<Appointment> completedAppointments =
+                    AppointmentDAO.getAppointments(
+                            patientId,
+                            "COMPLETED"
+                    );
+
+            if (!completedAppointments.isEmpty()) {
+
+                appointmentsPanel.removeAll();
+
+                for (Appointment appointment :
+                        completedAppointments) {
+
+                    appointmentsPanel.add(
+                            createCompletedAppointmentCard(
+                                    appointment
+                            )
+                    );
+
+                    appointmentsPanel.add(
+                            Box.createVerticalStrut(12)
+                    );
+                }
+
+                appointmentsPanel.revalidate();
+                appointmentsPanel.repaint();
+            }
+        }
+
+
+        // =====================================================
+        // FINAL PAGE SCROLL
+        // =====================================================
+
+        JScrollPane pageScroll =
+                new JScrollPane(
+                        panel,
+                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                );
+
+        pageScroll.setBorder(null);
+
+        pageScroll.getVerticalScrollBar()
+                .setUnitIncrement(16);
+
+        page.add(
+                pageScroll,
+                BorderLayout.CENTER
+        );
+
+
+        return page;
+    }
+
+    // =========================================================
+// COMPLETED APPOINTMENT CARD
+// =========================================================
+
+    private JPanel createCompletedAppointmentCard(
+            Appointment appointment
+    ) {
+
+        JPanel card =
+                new JPanel();
+
+        card.setLayout(null);
+
+        card.setBackground(
+                Color.WHITE
+        );
+
+        card.setPreferredSize(
+                new Dimension(
+                        820,
+                        180
+                )
+        );
+
+        card.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        180
+                )
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(
+                                        215,
+                                        225,
+                                        240
+                                )
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                5,
+                                5,
+                                5,
+                                5
+                        )
+                )
+        );
+
+
+        // =====================================================
+        // DEPARTMENT
+        // =====================================================
+
+        JLabel department =
+                new JLabel(
+                        appointment.getDepartment()
+                );
+
+        department.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        18
+                )
+        );
+
+        department.setForeground(
+                TEXT_DARK
+        );
+
+        department.setBounds(
+                20,
+                15,
+                350,
+                30
+        );
+
+        card.add(
+                department
+        );
+
+
+        // =====================================================
+        // COMPLETED STATUS
+        // =====================================================
+
+        JLabel status =
+                new JLabel(
+                        "COMPLETED",
+                        SwingConstants.CENTER
+                );
+
+        status.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        status.setForeground(
+                new Color(
+                        22,
+                        101,
+                        52
+                )
+        );
+
+        status.setBackground(
+                new Color(
+                        220,
+                        252,
+                        231
+                )
+        );
+
+        status.setOpaque(true);
+
+        status.setBounds(
+                690,
+                15,
+                110,
+                28
+        );
+
+        card.add(
+                status
+        );
+
+
+        // =====================================================
+        // DOCTOR
+        // =====================================================
+
+        JLabel doctor =
+                new JLabel(
+                        "Doctor: " +
+                                appointment.getDoctorName()
+                );
+
+        doctor.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        doctor.setForeground(
+                TEXT_GRAY
+        );
+
+        doctor.setBounds(
+                20,
+                55,
+                350,
+                25
+        );
+
+        card.add(
+                doctor
+        );
+
+
+        // =====================================================
+        // DATE
+        // =====================================================
+
+        JLabel date =
+                new JLabel(
+                        "Date: " +
+                                appointment.getAppointmentDate()
+                );
+
+        date.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        date.setForeground(
+                TEXT_GRAY
+        );
+
+        date.setBounds(
+                20,
+                82,
+                300,
+                25
+        );
+
+        card.add(
+                date
+        );
+
+
+        // =====================================================
+        // APPOINTMENT TYPE
+        // =====================================================
+
+        JLabel type =
+                new JLabel(
+                        "Type: " +
+                                appointment.getAppointmentType()
+                );
+
+        type.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        type.setForeground(
+                TEXT_GRAY
+        );
+
+        type.setBounds(
+                320,
+                82,
+                250,
+                25
+        );
+
+        card.add(
+                type
+        );
+
+
+        // =====================================================
+        // REASON
+        // =====================================================
+
+        JLabel reason =
+                new JLabel(
+                        "<html>Reason: " +
+                                appointment.getReason() +
+                                "</html>"
+                );
+
+        reason.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        reason.setForeground(
+                TEXT_GRAY
+        );
+
+        reason.setBounds(
+                20,
+                112,
+                500,
+                40
+        );
+
+        card.add(
+                reason
+        );
+
+
+        // =====================================================
+        // VIEW PRESCRIPTION BUTTON
+        // =====================================================
+
+        JButton viewButton =
+                new JButton(
+                        "View Prescription"
+                );
+
+        viewButton.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        viewButton.setForeground(
+                Color.WHITE
+        );
+
+        viewButton.setBackground(
+                BLUE
+        );
+
+        viewButton.setFocusPainted(false);
+
+        viewButton.setBorderPainted(false);
+
+        viewButton.setBounds(
+                590,
+                105,
+                210,
+                38
+        );
+
+        card.add(
+                viewButton
+        );
+
+
+        // =====================================================
+        // BUTTON ACTION
+        // =====================================================
+
+        viewButton.addActionListener(e -> {
+
+            List<Prescription> prescriptions =
+                    PrescriptionDAO
+                            .getPrescriptionsByAppointment(
+                                    appointment.getAppointmentId()
+                            );
+
+            if (prescriptions.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No prescription was added for this appointment.",
+                        "Prescription",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            int patientAge =
+                    DataStore.currentPatient.getAge();
+
+            openPrescriptionDetails(
+                    appointment,
+                    prescriptions,
+                    patientAge
+            );
+        });
+        return card;
+    }
+
+
+    // =========================================================
+// PRESCRIPTION DETAILS WINDOW
+// =========================================================
+
+    private void openPrescriptionDetails(
+            Appointment appointment,
+            List<Prescription> prescriptions,
+            int patientAge
+    ) {
+
+        JDialog dialog =
+                new JDialog(
+                        this,
+                        "Prescription Details",
+                        true
+                );
+
+        dialog.setSize(
+                600,
+                650
+        );
+
+        dialog.setLocationRelativeTo(
+                this
+        );
+
+        dialog.setLayout(
+                new BorderLayout()
+        );
+
+
+        // =====================================================
+        // HEADER
+        // =====================================================
+
+        JPanel header =
+                new JPanel();
+
+        header.setLayout(
+                new BoxLayout(
+                        header,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        header.setBackground(
+                Color.WHITE
+        );
+
+        header.setBorder(
+                BorderFactory.createEmptyBorder(
+                        20,
+                        25,
+                        15,
+                        25
+                )
+        );
+
+
+        JLabel title =
+                new JLabel(
+                        "Prescription Details"
+                );
+
+        title.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        22
+                )
+        );
+
+        title.setForeground(
+                TEXT_DARK
+        );
+
+        header.add(
+                title
+        );
+
+
+        header.add(
+                Box.createVerticalStrut(12)
+        );
+
+
+        JLabel appointmentDate =
+                new JLabel(
+                        "Date of Appointment: " +
+                                appointment.getAppointmentDate()
+                );
+
+        appointmentDate.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        header.add(
+                appointmentDate
+        );
+
+
+        JLabel age =
+                new JLabel(
+                        "Age: " +
+                                patientAge
+                );
+
+        age.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        header.add(
+                age
+        );
+
+
+        JLabel doctor =
+                new JLabel(
+                        "Doctor: " +
+                                appointment.getDoctorName()
+                );
+
+        doctor.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        header.add(
+                doctor
+        );
+
+
+        JLabel department =
+                new JLabel(
+                        "Department: " +
+                                appointment.getDepartment()
+                );
+
+        department.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        header.add(
+                department
+        );
+
+
+        dialog.add(
+                header,
+                BorderLayout.NORTH
+        );
+
+
+        // =====================================================
+        // MEDICINES CONTAINER
+        // =====================================================
+
+        JPanel medicinesPanel =
+                new JPanel();
+
+        medicinesPanel.setLayout(
+                new BoxLayout(
+                        medicinesPanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        medicinesPanel.setBackground(
+                BACKGROUND
+        );
+
+        medicinesPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        10,
+                        20,
+                        20,
+                        20
+                )
+        );
+
+
+        // =====================================================
+        // MEDICINE CARDS WILL BE ADDED HERE FROM DB
+        // =====================================================
+
+        for (Prescription prescription :
+                prescriptions) {
+
+            medicinesPanel.add(
+                    createPrescriptionCard(
+                            prescription
+                    )
+            );
+
+            medicinesPanel.add(
+                    Box.createVerticalStrut(12)
+            );
+        }
+
+
+        JScrollPane medicineScroll =
+                new JScrollPane(
+                        medicinesPanel,
+                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                );
+
+        medicineScroll.setBorder(null);
+
+        medicineScroll.getVerticalScrollBar()
+                .setUnitIncrement(16);
+
+        dialog.add(
+                medicineScroll,
+                BorderLayout.CENTER
+        );
+
+
+        // =====================================================
+        // CLOSE BUTTON
+        // =====================================================
+
+        JPanel bottomPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                15,
+                                10
+                        )
+                );
+
+        bottomPanel.setBackground(
+                Color.WHITE
+        );
+
+
+        JButton closeButton =
+                new JButton(
+                        "Close"
+                );
+
+        closeButton.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        closeButton.setFocusPainted(false);
+
+        closeButton.addActionListener(
+                e -> dialog.dispose()
+        );
+
+        bottomPanel.add(
+                closeButton
+        );
+
+        dialog.add(
+                bottomPanel,
+                BorderLayout.SOUTH
+        );
+
+
+        dialog.setVisible(true);
+    }
+
+    // =========================================================
+// PRESCRIPTION MEDICINE CARD
+// =========================================================
+
+    private JPanel createPrescriptionCard(
+            Prescription prescription
+    ) {
+
+        JPanel card =
+                new JPanel();
+
+        card.setLayout(null);
+
+        card.setBackground(
+                Color.WHITE
+        );
+
+        card.setPreferredSize(
+                new Dimension(
+                        520,
+                        190
+                )
+        );
+
+        card.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        190
+                )
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(
+                                        215,
+                                        225,
+                                        240
+                                )
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                5,
+                                5,
+                                5,
+                                5
+                        )
+                )
+        );
+
+
+        // =====================================================
+        // MEDICINE NAME
+        // =====================================================
+
+        JLabel medicineName =
+                new JLabel(
+                        prescription.getMedicineName()
+                );
+
+        medicineName.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        17
+                )
+        );
+
+        medicineName.setForeground(
+                TEXT_DARK
+        );
+
+        medicineName.setBounds(
+                20,
+                15,
+                450,
+                30
+        );
+
+        card.add(
+                medicineName
+        );
+
+
+        // =====================================================
+        // DOSAGE
+        // =====================================================
+
+        JLabel dosage =
+                new JLabel(
+                        "Dosage: " +
+                                prescription.getDosage()
+                );
+
+        dosage.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        dosage.setForeground(
+                TEXT_GRAY
+        );
+
+        dosage.setBounds(
+                20,
+                55,
+                450,
+                25
+        );
+
+        card.add(
+                dosage
+        );
+
+
+        // =====================================================
+        // WHEN TO TAKE
+        // =====================================================
+
+        JLabel whenToTake =
+                new JLabel(
+                        "When to Take: " +
+                                prescription.getWhenToTake()
+                );
+
+        whenToTake.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        whenToTake.setForeground(
+                TEXT_GRAY
+        );
+
+        whenToTake.setBounds(
+                20,
+                82,
+                450,
+                25
+        );
+
+        card.add(
+                whenToTake
+        );
+
+
+        // =====================================================
+        // DESCRIPTION
+        // =====================================================
+
+        JLabel descriptionLabel =
+                new JLabel(
+                        "Description:"
+                );
+
+        descriptionLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        descriptionLabel.setForeground(
+                TEXT_DARK
+        );
+
+        descriptionLabel.setBounds(
+                20,
+                112,
+                100,
+                25
+        );
+
+        card.add(
+                descriptionLabel
+        );
+
+
+        JLabel description =
+                new JLabel(
+                        "<html>" +
+                                prescription.getDescription() +
+                                "</html>"
+                );
+
+        description.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        description.setForeground(
+                TEXT_GRAY
+        );
+
+        description.setBounds(
+                20,
+                137,
+                470,
+                40
+        );
+
+        card.add(
+                description
+        );
+
+
+        return card;
     }
 
     private JPanel createHistoryPage() {
